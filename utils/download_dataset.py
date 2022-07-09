@@ -1,16 +1,15 @@
+import os
 import sys
-import string
 import wget
 import argparse
 import os.path as osp
-
 sys.path.append('.')
 
 from configs import configs
 from enums.ext import EXT
 from utils.extract import extract
 
-def download_dataset(dataset_name: string, outdir=None):
+def download_dataset(dataset_name: str, outdir=None):
     if dataset_name not in configs.keys():
         raise Exception("Unknown dataset '{}'".format(dataset_name))
     
@@ -18,7 +17,11 @@ def download_dataset(dataset_name: string, outdir=None):
     outdir = config.outdir if outdir is None else outdir
     if osp.isdir(osp.join(outdir, dataset_name)):
         print("Dataset already exist in {}".format(osp.join(outdir, dataset_name)))
+        return
     
+    if not osp.isdir(outdir):
+        os.makedirs(outdir)
+
     outpath = osp.join(outdir, dataset_name+"."+config.filetype)
     wget.download(url=config.download_link, out=outpath)
     extract(path=outpath, to=outdir, type=config.filetype)
