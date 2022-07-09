@@ -14,8 +14,8 @@ def download_dataset(dataset_name: str, outdir=None):
         raise Exception("Unknown dataset '{}'".format(dataset_name))
     
     config = configs[dataset_name]
-    outdir = config.outdir if outdir is None else outdir
-    if osp.isdir(osp.join(outdir, dataset_name)):
+    outdir = osp.join(config.outdir, dataset_name) if outdir is None else outdir
+    if osp.isdir(outdir):
         print("Dataset already exist in {}".format(osp.join(outdir, dataset_name)))
         return
     
