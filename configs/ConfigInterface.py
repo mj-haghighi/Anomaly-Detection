@@ -3,3 +3,6 @@ class IConfig:
     download_link = ''
     classes = ''
     filetype = ''
+    trainset=''
+    validationset=''
+    testset=''
