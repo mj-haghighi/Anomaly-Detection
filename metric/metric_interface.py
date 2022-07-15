@@ -4,7 +4,7 @@ from train.dynamics import Dynamics
 
 class IMetric:
     def __init__(self) -> None:
-        pass
+        self.value = 0
 
     def calculate(self, dynamics:Dynamics, prediction_probs:torch.Tensor, labels: torch.Tensor, idx: List[str]):
         """ 
