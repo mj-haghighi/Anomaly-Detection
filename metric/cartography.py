@@ -13,7 +13,7 @@ class Cartography(IMetric):
     def __init__(self) -> None:
         super().__init__()
 
-    def calculate(self, t_dynamics: Dynamics, v_dynamics: Dynamics, prediction_probs: torch.Tensor, labels: torch.Tensor, idx: List[str]):
+    def calculate(self, dynamics: Dynamics, prediction_probs: torch.Tensor, labels: torch.Tensor, idx: List[str]):
         """
         Calculate metric
         inputs:
