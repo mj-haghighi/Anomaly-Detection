@@ -12,6 +12,7 @@ from utils import download_dataset
 from data.loader import collate_fns
 from data.transforms import transforms
 from torch.utils.data import DataLoader
+from logger import ConsoleLogger, FileLogger
 
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
@@ -19,6 +20,7 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=20, help='max number of epochs')
     parser.add_argument('--batch_size', type=int, default=20, help='batch size')
     parser.add_argument('--lr', type=int, default=0.0001, help='learning rate')
+    parser.add_argument('--logdir', type=str, default='logs/', help='log directory')
     parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
 
     args = parser.parse_args()
@@ -27,7 +29,6 @@ def parse_args():
 def main(argv=None):
     args = parse_args()
 
-    config = configs[args.task]
     download_dataset(args.task)
     t_taransfm, v_transfm = transforms[args.task]
     t_dataset = datasets[args.task](phase=PHASE.train, transform=t_taransfm)
@@ -37,6 +38,7 @@ def main(argv=None):
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
     metrics = [Cartography()]
+    loggers = [ConsoleLogger(), FileLogger(args.logdir)]
     
     t_loader =  DataLoader(
         dataset=t_dataset,
@@ -61,8 +63,8 @@ def main(argv=None):
         optimizer=optimizer,
         num_epochs=args.epochs,
         metrics=metrics,
+        loggers=loggers
     )
-
 
     trainer.start()
 
