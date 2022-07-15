@@ -1,4 +1,5 @@
 import torch
+from typing import List
 from .metric_interface import IMetric
 from train.dynamics import Dynamics
 
@@ -12,7 +13,7 @@ class Cartography(IMetric):
     def __init__(self) -> None:
         super().__init__()
 
-    def calculate(self, dynamics: Dynamics, prediction_probs: torch.Tensor, labels: torch.Tensor, idx: str):
+    def calculate(self, t_dynamics: Dynamics, v_dynamics: Dynamics, prediction_probs: torch.Tensor, labels: torch.Tensor, idx: List[str]):
         """
         Calculate metric
         inputs:

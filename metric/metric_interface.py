@@ -5,7 +5,7 @@ class IMetric:
     def __init__(self) -> None:
         pass
 
-    def calculate(self, dynamics:Dynamics, prediction_probs:torch.Tensor, labels: torch.Tensor):
+    def calculate(self, t_dynamics:Dynamics, v_dynamics:Dynamics, prediction_probs:torch.Tensor, labels: torch.Tensor, idx):
         """ 
         Calculate metric
         inputs:
