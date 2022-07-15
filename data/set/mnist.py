@@ -6,9 +6,9 @@ from PIL import Image
 from enums import PHASE
 from enums import DATASETS
 from configs.mnist import Config
-from utils import to_categorical, download_dataset
+from utils import to_categorical
+from .dataset_interface import IDataset
 from torch.utils.data import Dataset as TorchDataset
-from .DatasetInterface import IDataset
 
 class Dataset(TorchDataset, IDataset):
     def __init__(self, phase:str=PHASE.train, transform=None):

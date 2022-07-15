@@ -1,5 +1,5 @@
 import torch
-from .IMetric import IMetric
+from .metric_interface import IMetric
 from train.dynamics import Dynamics
 
 

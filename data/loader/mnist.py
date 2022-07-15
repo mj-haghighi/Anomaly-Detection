@@ -1,7 +1,6 @@
 from typing import List
 import torch
 import numpy as np
-from torch.utils.data import DataLoader
 
 def collate_fn(batch):
     img_names: List[str] = []

@@ -1,6 +1,7 @@
 from torch.nn.functional import softmax
 from typing import List
-from metric.IMetric import IMetric
+from logger.logger_interface import ILogger
+from metric.metric_interface import IMetric
 from .dynamics import Dynamics
 
 class Trainer:

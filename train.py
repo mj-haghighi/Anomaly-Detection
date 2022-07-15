@@ -1,6 +1,5 @@
 
 import argparse
-import errno
 import torch.nn as nn
 from enums import PHASE
 from model import models

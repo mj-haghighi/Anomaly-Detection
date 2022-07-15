@@ -1,6 +1,6 @@
 from typing import Dict
 from enums import DATASETS
-from data.set.DatasetInterface import IDataset
+from data.set.dataset_interface import IDataset
 
 from .mnist import Dataset as MNISTDataset
 
