@@ -14,8 +14,10 @@ class Trainer:
         v_loader,
         optimizer,
         num_epochs,
-        metrics: List[IMetric]
+        metrics: List[IMetric],
+        loggers: List[ILogger]
         ) -> None:
+
         self.model = model
         self.error = error
         self.device = device
@@ -25,8 +27,10 @@ class Trainer:
         self.dynamics = Dynamics()
         self.optimizer = optimizer
         self.num_epochs = num_epochs
+        self.loggers = loggers
 
     def start(self):
+        print('training start ...')
         self.model.to(self.device)
         for epoch in range(self.num_epochs):
             self.dynamics.epoch = epoch
@@ -42,8 +46,9 @@ class Trainer:
                 self.dynamics.b_loss = loss.item()
                 loss.backward()
                 self.optimizer.step()
-                
+
                 for metric in self.metrics:
                     metric.calculate(self.dynamics, prediction_probs, labels, idx)
-            print('loss: {:.4f}: '.format(self.dynamics.loss))                
-            
+
+            for logger in self.loggers:
+                logger.log(self.dynamics, self.metrics)
