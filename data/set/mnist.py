@@ -15,6 +15,7 @@ class Dataset(TorchDataset, IDataset):
         self.datadir = self.__get_datadir(phase)
         self.samples = self.__collect_samples()
         self.transform = transform
+        print('{} sample available in {} set'.format(len(self.samples), phase))
 
     def __len__(self):
         return len(self.samples)
