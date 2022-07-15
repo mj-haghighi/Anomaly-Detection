@@ -3,10 +3,9 @@ import argparse
 import torch.nn as nn
 from enums import PHASE
 from model import models
-from configs import configs
 from torch.optim import Adam
 from data.set import datasets
-from metric import Cartography
+from metric import Acc
 from train.trainer import Trainer
 from utils import download_dataset
 from data.loader import collate_fns
@@ -37,8 +36,8 @@ def main(argv=None):
     model = models[args.task]()
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
-    t_metrics = []
-    v_metrics = []
+    t_metrics = [Acc()]
+    v_metrics = [Acc()]
     loggers = [ConsoleLogger(), FileLogger(args.logdir)]
     
     t_loader =  DataLoader(
