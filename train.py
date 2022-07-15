@@ -37,7 +37,8 @@ def main(argv=None):
     model = models[args.task]()
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
-    metrics = [Cartography()]
+    t_metrics = []
+    v_metrics = []
     loggers = [ConsoleLogger(), FileLogger(args.logdir)]
     
     t_loader =  DataLoader(
@@ -62,7 +63,8 @@ def main(argv=None):
         v_loader=v_loader,
         optimizer=optimizer,
         num_epochs=args.epochs,
-        metrics=metrics,
+        t_metrics=t_metrics,
+        v_metrics=v_metrics,
         loggers=loggers
     )
 
