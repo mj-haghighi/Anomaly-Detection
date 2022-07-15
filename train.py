@@ -1,11 +1,12 @@
 
 import argparse
+import os.path as osp
 import torch.nn as nn
 from enums import PHASE
 from model import models
 from torch.optim import Adam
 from data.set import datasets
-from metric import Acc
+from metric import Acc, Cartography
 from train.trainer import Trainer
 from utils import download_dataset
 from data.loader import collate_fns
@@ -36,7 +37,8 @@ def main(argv=None):
     model = models[args.task]()
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
-    t_metrics = [Acc()]
+    cartography = Cartography()
+    t_metrics = [Acc(), cartography]
     v_metrics = [Acc()]
     loggers = [ConsoleLogger(), FileLogger(args.logdir)]
     
@@ -68,6 +70,8 @@ def main(argv=None):
     )
 
     trainer.start()
+    cartography.value.to_pickle(osp.join(args.logdir, "cartography.pkl"))
+
 
 if __name__ == "__main__":
     main()
