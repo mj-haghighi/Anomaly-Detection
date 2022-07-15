@@ -29,7 +29,7 @@ def main(argv=None):
     args = parse_args()
 
     config = configs[args.task]
-    download_dataset(args.task, outdir=config.outdir)
+    download_dataset(args.task)
     t_taransfm, v_transfm = transforms[args.task]
     t_dataset = datasets[args.task](phase=PHASE.train, transform=t_taransfm)
     v_dataset = datasets[args.task](phase=PHASE.validation, transform=v_transfm)
