@@ -3,6 +3,7 @@ from torch.nn.functional import softmax
 from typing import List
 from logger.logger_interface import ILogger
 from metric.metric_interface import IMetric
+from saver.saver_interface import IModelSaver
 from .dynamics import Dynamics
 
 class Trainer:
@@ -17,7 +18,8 @@ class Trainer:
         num_epochs,
         t_metrics: List[IMetric],
         v_metrics: List[IMetric],
-        loggers: List[ILogger]
+        loggers: List[ILogger],
+        savers: List[IModelSaver]
         ) -> None:
 
         self.model = model
@@ -32,6 +34,7 @@ class Trainer:
         self.optimizer = optimizer
         self.num_epochs = num_epochs
         self.loggers = loggers
+        self.savers = savers
 
     def start(self):
         print('training start ...')
@@ -75,3 +78,6 @@ class Trainer:
 
             for logger in self.loggers:
                 logger.log(self.t_dynamics, self.v_dynamics, self.t_metrics, self.v_metrics)
+            
+            for saver in self.savers:
+                saver.look_for_save(metric_value=self.v_dynamics.loss)
