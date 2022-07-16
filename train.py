@@ -14,6 +14,7 @@ from data.loader import collate_fns
 from data.transforms import transforms
 from torch.utils.data import DataLoader
 from utils.log_configs import log_configs
+from utils.inject_noise_to_dataset import inject_noise_to_dataset
 from logger import ConsoleLogger, FileLogger
 
 def parse_args():
@@ -21,9 +22,10 @@ def parse_args():
     parser.add_argument('--task', type=str, choices=['mnist', 'cfar100'], help='choose task')
     parser.add_argument('--epochs', type=int, default=20, help='max number of epochs')
     parser.add_argument('--batch_size', type=int, default=20, help='batch size')
-    parser.add_argument('--lr', type=int, default=0.0001, help='learning rate')
+    parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')
     parser.add_argument('--logdir', type=str, default='logs/', help='log directory')
     parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:0', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
+    parser.add_argument('--inject_noise', type=int, default=0, help='injected noise precentage of dataset')
 
     args = parser.parse_args()
     return args
@@ -34,6 +36,9 @@ def main(argv=None):
     log_configs(args, logdir)
 
     download_dataset(args.task)
+    if args.inject_noise > 0:
+        inject_noise_to_dataset(noise_percentage=args.inject_noise, dataset_name=args.task)
+
     t_taransfm, v_transfm = transforms[args.task]
     t_dataset = datasets[args.task](phase=PHASE.train, transform=t_taransfm)
     v_dataset = datasets[args.task](phase=PHASE.validation, transform=v_transfm)
