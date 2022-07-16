@@ -7,12 +7,13 @@ from model import models
 from torch.optim import Adam
 from saver import best_model
 from data.set import datasets
-from metric import Acc, Cartography
 from train.trainer import Trainer
 from utils import download_dataset
+from metric import Acc, Cartography
 from data.loader import collate_fns
 from data.transforms import transforms
 from torch.utils.data import DataLoader
+from utils.log_configs import log_configs
 from logger import ConsoleLogger, FileLogger
 
 def parse_args():
@@ -29,6 +30,8 @@ def parse_args():
 
 def main(argv=None):
     args = parse_args()
+    logdir = osp.join(args.logdir, args.task)
+    log_configs(args, logdir)
 
     download_dataset(args.task)
     t_taransfm, v_transfm = transforms[args.task]
