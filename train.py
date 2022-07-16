@@ -44,8 +44,8 @@ def main(argv=None):
     cartography = Cartography()
     t_metrics = [Acc(), cartography]
     v_metrics = [Acc()]
-    loggers = [ConsoleLogger(), FileLogger(args.logdir)]
-    savers = [best_model.MINMetricValueModelSaver(model, savedir=args.logdir)]
+    loggers = [ConsoleLogger(), FileLogger(logdir)]
+    savers = [best_model.MINMetricValueModelSaver(model, savedir=logdir)]
     
     t_loader =  DataLoader(
         dataset=t_dataset,
@@ -76,7 +76,7 @@ def main(argv=None):
     )
 
     trainer.start()
-    cartography.value.to_pickle(osp.join(args.logdir, "cartography.pkl"))
+    cartography.value.to_pickle(osp.join(logdir, "cartography.pkl"))
 
 
 if __name__ == "__main__":
