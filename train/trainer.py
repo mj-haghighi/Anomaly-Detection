@@ -1,3 +1,4 @@
+from cProfile import label
 from torch.nn.functional import softmax
 from typing import List
 from logger.logger_interface import ILogger
@@ -46,7 +47,7 @@ class Trainer:
             for idx, data, labels in self.t_loader:
                 self.t_dynamics.iteration +=1
                 self.optimizer.zero_grad()
-                data = data.to(self.device)
+                data, labels = data.to(self.device), labels.to(self.device)
                 prediction_values = self.model(data) # (B, C)
                 prediction_probs = softmax(prediction_values, dim=1) # (B, C)
                 loss = self.error(prediction_probs, labels)
@@ -62,7 +63,7 @@ class Trainer:
             self.model.eval()
             for idx, data, labels in self.v_loader:
                 self.v_dynamics.iteration +=1
-                data = data.to(self.device)
+                data, labels = data.to(self.device), labels.to(self.device)
                 prediction_values = self.model(data) # (B, C)
                 prediction_probs = softmax(prediction_values, dim=1) # (B, C)
                 loss = self.error(prediction_probs, labels)
