@@ -5,6 +5,7 @@ import torch.nn as nn
 from enums import PHASE
 from model import models
 from torch.optim import Adam
+from saver import best_model
 from data.set import datasets
 from metric import Acc, Cartography
 from train.trainer import Trainer
@@ -41,6 +42,7 @@ def main(argv=None):
     t_metrics = [Acc(), cartography]
     v_metrics = [Acc()]
     loggers = [ConsoleLogger(), FileLogger(args.logdir)]
+    savers = [best_model.MINMetricValueModelSaver(model, savedir=args.logdir)]
     
     t_loader =  DataLoader(
         dataset=t_dataset,
@@ -66,7 +68,8 @@ def main(argv=None):
         num_epochs=args.epochs,
         t_metrics=t_metrics,
         v_metrics=v_metrics,
-        loggers=loggers
+        loggers=loggers,
+        savers=savers
     )
 
     trainer.start()
