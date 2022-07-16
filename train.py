@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=20, help='batch size')
     parser.add_argument('--lr', type=int, default=0.0001, help='learning rate')
     parser.add_argument('--logdir', type=str, default='logs/', help='log directory')
-    parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
+    parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:0', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
 
     args = parser.parse_args()
     return args
