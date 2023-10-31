@@ -1,8 +1,11 @@
 from typing import Dict
 import torch.nn as nn
-from enums import DATASETS
-from .mnist import MNIST
+from enums import MODELS
+from .Resnet18 import Resnet18
+from .Resnet34 import Resnet34
 
-models: Dict[str, nn.Module]={
-    DATASETS.mnist: MNIST
+
+models: Dict[str, nn.Module] = {
+    MODELS.resnet18: Resnet18,
+    MODELS.resnet34: Resnet34
 }
