@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')
     parser.add_argument('--logdir', type=str, default='logs/', help='log directory')
     parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:0', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
-    parser.add_argument('--inject_noise', type=float, default=0, help='injected noise precentage of dataset')
+    parser.add_argument('--inject_noise', type=float, default=0, choices=[0, 0.03, 0.07, 0.13], help='injected noise precentage of dataset')
 
     args = parser.parse_args()
     return args
