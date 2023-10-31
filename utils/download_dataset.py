@@ -29,7 +29,7 @@ def download_dataset(dataset_name: str, outdir=None):
 ##: To use directly
 def parse_args():
     parser = argparse.ArgumentParser(description='download dataset')
-    parser.add_argument('--dataset', type=str, choices=['mnist', 'cfar10', 'cfar100'], help='choose dataset')
+    parser.add_argument('--dataset', type=str, choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
 
     args = parser.parse_args()
     return args

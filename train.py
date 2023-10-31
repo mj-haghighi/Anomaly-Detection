@@ -19,7 +19,7 @@ from logger import ConsoleLogger, FileLogger
 
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
-    parser.add_argument('--task', type=str, choices=['mnist', 'cfar100'], help='choose task')
+    parser.add_argument('--dataset', type=str, choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
     parser.add_argument('--epochs', type=int, default=20, help='max number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')

@@ -1,4 +1,4 @@
 class DATASETS:
     mnist = "mnist"
-    cfar10 = "cfar10"
-    cfar100 = "cfar100"
+    cifar10 = "cifar10"
+    cifar100 = "cifar100"
