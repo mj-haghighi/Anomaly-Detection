@@ -21,7 +21,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     parser.add_argument('--task', type=str, choices=['mnist', 'cfar100'], help='choose task')
     parser.add_argument('--epochs', type=int, default=20, help='max number of epochs')
-    parser.add_argument('--batch_size', type=int, default=20, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')
     parser.add_argument('--logdir', type=str, default='logs/', help='log directory')
     parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:0', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
@@ -32,18 +32,18 @@ def parse_args():
 
 def main(argv=None):
     args = parse_args()
-    logdir = osp.join(args.logdir, args.task)
+    logdir = osp.join(args.logdir, args.dataset)
     log_configs(args, logdir)
 
-    download_dataset(args.task)
+    download_dataset(args.dataset)
     if args.inject_noise > 0:
-        inject_noise_to_dataset(noise_percentage=args.inject_noise, dataset_name=args.task)
+        inject_noise_to_dataset(noise_percentage=args.inject_noise, dataset_name=args.dataset)
 
-    t_taransfm, v_transfm = transforms[args.task]
-    t_dataset = datasets[args.task](phase=PHASE.train, transform=t_taransfm)
-    v_dataset = datasets[args.task](phase=PHASE.validation, transform=v_transfm)
+    t_taransfm, v_transfm = transforms[args.dataset]
+    t_dataset = datasets[args.dataset](phase=PHASE.train, transform=t_taransfm)
+    v_dataset = datasets[args.dataset](phase=PHASE.validation, transform=v_transfm)
 
-    model = models[args.task]()
+    model = models[args.dataset]()
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
     cartography = Cartography()
@@ -56,14 +56,14 @@ def main(argv=None):
         dataset=t_dataset,
         batch_size=args.batch_size,
         shuffle=True,
-        collate_fn=collate_fns[args.task]
+        collate_fn=collate_fns[args.dataset]
     )
     
     v_loader =  DataLoader(
         dataset=v_dataset,
         batch_size=args.batch_size,
         shuffle=False,
-        collate_fn=collate_fns[args.task]
+        collate_fn=collate_fns[args.dataset]
     )
 
     trainer = Trainer(
