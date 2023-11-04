@@ -1,0 +1,1 @@
+from .cifar10 import reform_datset as reform_cifar10
