@@ -17,14 +17,16 @@ def download_dataset(dataset_name: str, outdir=None):
     outdir = osp.join(config.outdir, dataset_name) if outdir is None else outdir
     if osp.isdir(outdir):
         print("Dataset already exist in {}".format(osp.join(outdir)))
-        return
-    
-    if not osp.isdir(outdir):
-        os.makedirs(outdir)
+    else:
+        if not osp.isdir(outdir):
+            os.makedirs(outdir)
 
-    outpath = osp.join(outdir, dataset_name+"."+config.filetype)
-    wget.download(url=config.download_link, out=outpath)
-    extract(path=outpath, to=outdir, type=config.filetype)
+        outpath = osp.join(outdir, dataset_name+"."+config.filetype)
+        wget.download(url=config.download_link, out=outpath)
+        extract(path=outpath, to=outdir, type=config.filetype)
+
+    if config.reform:
+        config.reform(reform_dir=outdir, data_dir = osp.join(outdir, config.raw_data_folder))
 
 ##: To use directly
 def parse_args():
