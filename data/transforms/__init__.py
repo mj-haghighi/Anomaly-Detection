@@ -3,5 +3,6 @@ from .mnist import t_transforms as mnist_ttransforms
 from .mnist import v_transforms as mnist_vtransforms
 
 transforms={
-    DATASETS.mnist: (mnist_ttransforms, mnist_vtransforms)
+    DATASETS.mnist: (mnist_ttransforms, mnist_vtransforms),
+    DATASETS.cifar10: (mnist_ttransforms, mnist_vtransforms)
 }
