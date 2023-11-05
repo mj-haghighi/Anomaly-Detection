@@ -9,17 +9,20 @@ from saver import best_model
 from data.set import datasets
 from train.trainer import Trainer
 from utils import download_dataset
+from configs import configs as dataset_configs
 from metric import Acc, Cartography
 from data.loader import collate_fns
 from data.transforms import transforms
 from torch.utils.data import DataLoader
 from utils.log_configs import log_configs
+
 from utils.inject_noise_to_dataset import inject_noise_to_dataset
 from logger import ConsoleLogger, FileLogger
 
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     parser.add_argument('--dataset', type=str, choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
+    parser.add_argument('--model', type=str, choices=['resnet18', 'resnet34'], help='choose model')
     parser.add_argument('--epochs', type=int, default=20, help='max number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')
@@ -43,7 +46,7 @@ def main(argv=None):
     t_dataset = datasets[args.dataset](phase=PHASE.train, transform=t_taransfm)
     v_dataset = datasets[args.dataset](phase=PHASE.validation, transform=v_transfm)
 
-    model = models[args.dataset]()
+    model = models[args.model](num_classes=len(dataset_configs[args.dataset].classes))
     optimizer = Adam(model.parameters(), lr=args.lr)
     error = nn.CrossEntropyLoss()
     cartography = Cartography()
