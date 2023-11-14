@@ -1,0 +1,2 @@
+E: 0 | t-loss: 2.223 | v-loss: 2.192 | t-acc: 0.2397 | t- | v-acc: 0.2587 
+E: 0 | t-loss: 2.218 | v-loss: 2.198 | t-acc: 0.2467 | t- | v-acc: 0.2572 
