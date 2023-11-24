@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda:0', 'cuda:1', 'cuda:2', 'cuda:3', 'cuda:4', 'cuda:5', 'cuda:6'], help='learning device')
     parser.add_argument('--optimizer', type=str, default='sgd', choices=['adam', 'sgd', 'rmsprobe', 'sparseadam'], help='choose model optimizer')
     parser.add_argument('--inject_noise', type=float, default=0, choices=[0, 0.03, 0.07, 0.13], help='injected noise precentage of dataset')
+    parser.add_argument('--noise_sparsity', type=float, default=0, choices=[0, 0.2, 0.4, 0.6], help='sparsity of injected noise to the dataset (fraction of off-diagonal zeros in noise matrix)')
 
     args = parser.parse_args()
     return args
@@ -41,7 +42,7 @@ def main(argv=None):
 
     download_dataset(args.dataset)
     if args.inject_noise > 0:
-        inject_noise_to_dataset(noise_percentage=args.inject_noise, dataset_name=args.dataset)
+        inject_noise_to_dataset(noise_percentage=args.inject_noise, sparsity=args.noise_sparsity, dataset_name=args.dataset)
 
     t_taransfm, v_transfm = transforms[args.dataset]
     t_dataset = datasets[args.dataset](phase=PHASE.train, transform=t_taransfm)
