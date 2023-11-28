@@ -43,6 +43,7 @@ class Trainer:
         for epoch in range(self.num_epochs):
 
             # train
+            train_epoch_loss = []
             self.model.train()
             for idx, data, labels in self.t_loader:
                 self.optimizer.zero_grad()
@@ -51,6 +52,7 @@ class Trainer:
                 prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                 loss_each = self.error(prediction_probs, labels)
                 loss_all = torch.mean(loss_each)
+                train_epoch_loss.append(loss_all.item())
                 loss_all.backward()
                 self.optimizer.step()
 
@@ -65,14 +67,15 @@ class Trainer:
                         metrics=self.t_metrics)
 
             # validation
+            validation_epoch_loss = []
             self.model.eval()
             for idx, data, labels in self.v_loader:
-                self.v_dynamics.iteration += 1
                 data, labels = data.to(self.device), labels.to(self.device)
                 prediction_values = self.model(data)  # (B, C)
                 prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                 loss_each = self.error(prediction_probs, labels)
                 loss_all = torch.mean(loss_each)
+                validation_epoch_loss.append(loss_all.item())
                 validation_result = (prediction_probs, labels, loss_each)
                 for metric in self.v_metrics:
                     metric.calculate(*validation_result)
@@ -83,5 +86,6 @@ class Trainer:
                         true_labels=[None for l in labels],
                         metrics=self.v_metrics)
 
+            print(f"epoch ({epoch}) | train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
             for saver in self.savers:
-                saver.look_for_save(metric_value=self.v_dynamics.loss)
+                saver.look_for_save(metric_value=np.mean(validation_epoch_loss))
