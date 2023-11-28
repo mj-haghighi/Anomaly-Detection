@@ -4,9 +4,9 @@ from train.dynamics import Dynamics
 
 class IMetric:
     def __init__(self) -> None:
-        self.value = 0
+        pass
 
-    def calculate(self, dynamics:Dynamics, prediction_probs:torch.Tensor, labels: torch.Tensor, idx: List[str]):
+    def calculate(self, prediction_probs:torch.Tensor, labels: torch.Tensor, loss):
         """ 
         Calculate metric
         inputs:
@@ -14,4 +14,12 @@ class IMetric:
             prediction_probs: model output after softmax. (B:batch size, C: number of classes)
             labels: data labels in term of categorical. (B:batch size, C: number of classes)
         """
+        raise Exception("This methoud is not implemented")
+
+    @property
+    def value(self):
+        raise Exception("This methoud is not implemented")
+
+    @property
+    def name(self):
         raise Exception("This methoud is not implemented")
