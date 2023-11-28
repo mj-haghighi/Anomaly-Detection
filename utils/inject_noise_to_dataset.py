@@ -7,10 +7,8 @@ import shutil
 from typing import List
 from configs import configs
 
-def generate_n_probs_sum_to_m(n, m):
-    min_prob = 0.0
-    max_prob = 1.0
-    
+def generate_n_probs_sum_to_m(n, m, min_prob=0.0, max_prob=1.0):
+
     probs = np.random.dirichlet(np.ones(n)) * m
     
     min_value = min(probs)
@@ -46,11 +44,19 @@ def generate_noise_matrix(num_classes, noise_rate, sparsity):
     off_diagonals_mask = ~np.eye(num_classes, dtype=bool)
     off_diagonals_indices = np.argwhere(off_diagonals_mask)
     np.random.shuffle(off_diagonals_indices)
+
     num_off_diagonal_non_zeros = int((num_classes * (num_classes - 1)) * (1 - sparsity))
-    off_diagonals_values = generate_n_probs_sum_to_m(num_off_diagonal_non_zeros, num_classes * noise_rate)
-    
-    for i, idx in enumerate(off_diagonals_indices[:num_off_diagonal_non_zeros]):
-        noise_matrix[idx[0], idx[1]] = off_diagonals_values[i]
+    off_diagonals_indices = off_diagonals_indices[: num_off_diagonal_non_zeros]
+
+    for i in range(noise_matrix.shape[1]):
+        m = 1.0 - noise_matrix[i, i]
+        filtered_off_diagonals_indices = off_diagonals_indices[off_diagonals_indices[:, 1] == i]
+        if len(filtered_off_diagonals_indices) != 0:
+            vector = generate_n_probs_sum_to_m(len(filtered_off_diagonals_indices), m)
+            for i, idx in enumerate(filtered_off_diagonals_indices):
+                noise_matrix[idx[0], idx[1]] = vector[i]
+        else:
+            continue
         
     return noise_matrix
 
@@ -73,7 +79,7 @@ def inject_noise_to_dataset(noise_percentage, sparsity, dataset_name: str, outdi
         for path in paths:
             data.append((osp.basename(path), cls))
 
-    noise_matrix = generate_noise_matrix(num_classes=len(config.classes), noise_rate=(noise_percentage / 100), sparsity=sparsity)
+    noise_matrix = generate_noise_matrix(num_classes=len(config.classes), noise_rate=noise_percentage, sparsity=sparsity)
 
     num_noisy_samples = 0
     noisy_data = []
