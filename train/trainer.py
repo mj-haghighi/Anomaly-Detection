@@ -62,7 +62,7 @@ class Trainer:
                 for logger in self.loggers:
                     logger.log(
                         epoch=epoch, samples=idx, phase=PHASE.train,
-                        labels=np.argmax(labels.cpu().detach().numpy(), axis=0),
+                        labels=np.argmax(labels.cpu().detach().numpy(), axis=1),
                         true_labels=[None for l in labels],
                         metrics=self.t_metrics)
 
