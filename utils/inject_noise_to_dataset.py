@@ -67,9 +67,11 @@ def inject_noise_to_dataset(noise_percentage, sparsity, dataset_name: str, outdi
 
     config = configs[dataset_name]
     original_dataset_dir = osp.join(config.outdir, dataset_name, config.trainset)
-    noisy_dataset_dir = osp.join(config.outdir, dataset_name, 'noisy{}-sparsity{}-'.format(noise_percentage, sparsity) + config.trainset)
+    noisy_dataset_dir = osp.join(config.outdir, dataset_name, '{} noisy|{} sparsity|'.format(noise_percentage, sparsity) + config.trainset)
     if osp.isdir(noisy_dataset_dir):
         print("Noisy dataset already exist in {}".format(osp.join(noisy_dataset_dir)))
+        config.trainset = '{} noisy|{} sparsity|'.format(noise_percentage, sparsity) + config.trainset
+        print('use {} instead as train set'.format(config.trainset))
         return
 
     data = []
@@ -110,7 +112,7 @@ def inject_noise_to_dataset(noise_percentage, sparsity, dataset_name: str, outdi
         new_path = osp.join(noisy_dataset_dir, new_cls, new_name)
         shutil.copyfile(old_path, new_path)
 
-    config.trainset = 'noisy{}-sparsity{}-'.format(noise_percentage, sparsity) + config.trainset
+    config.trainset = '{} noisy|{} sparsity|'.format(noise_percentage, sparsity) + config.trainset
     print('{} noisy samples injected!'.format(num_noisy_samples))
     print('use {} instead as train set'.format(config.trainset))
     
