@@ -83,7 +83,6 @@ def inject_noise_to_dataset(noise_percentage, sparsity, dataset_name: str, outdi
             data.append((osp.basename(path), cls))
 
     noise_matrix = generate_noise_matrix(num_classes=len(config.classes), noise_rate=noise_percentage, sparsity=sparsity, diversity=0.2)
-    print(noise_matrix)
 
     num_noisy_samples = 0
     noisy_data = []
