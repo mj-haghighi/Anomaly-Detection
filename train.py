@@ -30,6 +30,8 @@ def parse_args():
                         help='max number of epochs')
     parser.add_argument('--batch_size', type=int,
                         default=64, help='batch size')
+    parser.add_argument('--folds', type=int,
+                        default=5, help='number of folds in cross validation')
     parser.add_argument('--lr', type=float, default=0.0001,
                         help='learning rate')
     parser.add_argument('--logdir', type=str,
@@ -59,8 +61,6 @@ def main(argv=None):
 
     t_taransfm, v_transfm = transforms[args.dataset]
     t_dataset = datasets[args.dataset](phase=PHASE.train, transform=t_taransfm)
-    v_dataset = datasets[args.dataset](
-        phase=PHASE.validation, transform=v_transfm)
 
     num_classes = len(dataset_configs[args.dataset].classes)
     model = models[args.model](num_classes=num_classes)
@@ -85,19 +85,12 @@ def main(argv=None):
         collate_fn=collate_fns[args.dataset]
     )
 
-    v_loader = DataLoader(
-        dataset=v_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        collate_fn=collate_fns[args.dataset]
-    )
-
     trainer = Trainer(
         model=model,
         error=error,
         device=args.device,
         t_loader=t_loader,
-        v_loader=v_loader,
+        num_folds=args.folds,
         optimizer=optimizer,
         num_epochs=args.epochs,
         t_metrics=level1_metrics,

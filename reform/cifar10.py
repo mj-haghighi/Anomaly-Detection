@@ -113,6 +113,3 @@ def reform_datset(
                  file_names=file_names,
                  count=num_cases_per_batch,
                  label_names=label_names)
-
-    split_validation(train_data_dir=osp.join(reform_dir, train),
-                     validation_data_dir=osp.join(reform_dir, validation))
