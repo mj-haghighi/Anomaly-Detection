@@ -7,7 +7,7 @@ import shutil
 from typing import List
 from configs import configs
 
-def generate_n_probs_sum_to_m(n, m, min_prob=0.0, max_prob=1.0):
+def generate_n_limited_probs_sum_to_m(n, m, min_prob=0.0, max_prob=1.0):
 
     probs = np.random.dirichlet(np.ones(n)) * m
     
@@ -35,10 +35,13 @@ def generate_n_probs_sum_to_m(n, m, min_prob=0.0, max_prob=1.0):
     
     return probs
 
-def generate_noise_matrix(num_classes, noise_rate, sparsity):
+def generate_noise_matrix(num_classes, noise_rate, sparsity, diversity):
     trace = num_classes - (noise_rate * num_classes)
     noise_matrix = np.zeros(shape=(num_classes, num_classes))
-    diagonals = generate_n_probs_sum_to_m(num_classes, trace)
+    diagonals = generate_n_limited_probs_sum_to_m(num_classes,
+                                          trace,
+                                          min_prob=(1.0 - diversity) * (trace / num_classes),
+                                          max_prob=np.clip((1.0 + diversity) * (trace / num_classes), None, 1.0))
     np.fill_diagonal(noise_matrix, diagonals)
 
     off_diagonals_mask = ~np.eye(num_classes, dtype=bool)
@@ -52,7 +55,7 @@ def generate_noise_matrix(num_classes, noise_rate, sparsity):
         m = 1.0 - noise_matrix[i, i]
         filtered_off_diagonals_indices = off_diagonals_indices[off_diagonals_indices[:, 1] == i]
         if len(filtered_off_diagonals_indices) != 0:
-            vector = generate_n_probs_sum_to_m(len(filtered_off_diagonals_indices), m)
+            vector = generate_n_limited_probs_sum_to_m(len(filtered_off_diagonals_indices), m)
             for i, idx in enumerate(filtered_off_diagonals_indices):
                 noise_matrix[idx[0], idx[1]] = vector[i]
         else:
@@ -79,7 +82,8 @@ def inject_noise_to_dataset(noise_percentage, sparsity, dataset_name: str, outdi
         for path in paths:
             data.append((osp.basename(path), cls))
 
-    noise_matrix = generate_noise_matrix(num_classes=len(config.classes), noise_rate=noise_percentage, sparsity=sparsity)
+    noise_matrix = generate_noise_matrix(num_classes=len(config.classes), noise_rate=noise_percentage, sparsity=sparsity, diversity=0.2)
+    print(noise_matrix)
 
     num_noisy_samples = 0
     noisy_data = []
