@@ -43,7 +43,7 @@ class Trainer:
         print('training start ...')
         self.model.to(self.device)
         
-        kf = KFold(n_splits=self.num_folds, shuffle=True)
+        kf = KFold(n_splits=self.num_folds, shuffle=True, random_state=43)
 
         for fold, (train_indices, val_indices) in enumerate(kf.split(self.t_loader.dataset)):
             print(f"\nFold {fold + 1}/{self.num_folds}")
