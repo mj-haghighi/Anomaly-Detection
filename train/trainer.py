@@ -105,7 +105,7 @@ class Trainer:
                     for logger in self.loggers:
                         logger.log(
                             fold=fold, epoch=epoch, samples=idx, phase=PHASE.validation,
-                            labels=np.argmax(labels.cpu().detach().numpy(), axis=0),
+                            labels=np.argmax(labels.cpu().detach().numpy(), axis=1),
                             true_labels=[None for l in labels],
                             metrics=self.v_metrics)
 
