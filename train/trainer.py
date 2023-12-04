@@ -84,7 +84,7 @@ class Trainer:
                         metric.calculate(*train_result)
                     for logger in self.loggers:
                         logger.log(
-                            epoch=epoch, samples=idx, phase=PHASE.train,
+                            fold=fold, epoch=epoch, samples=idx, phase=PHASE.train,
                             labels=np.argmax(labels.cpu().detach().numpy(), axis=1),
                             true_labels=[None for l in labels],
                             metrics=self.t_metrics)
@@ -104,7 +104,7 @@ class Trainer:
                         metric.calculate(*validation_result)
                     for logger in self.loggers:
                         logger.log(
-                            epoch=epoch, samples=idx, phase=PHASE.validation,
+                            fold=fold, epoch=epoch, samples=idx, phase=PHASE.validation,
                             labels=np.argmax(labels.cpu().detach().numpy(), axis=0),
                             true_labels=[None for l in labels],
                             metrics=self.v_metrics)
