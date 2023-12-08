@@ -3,6 +3,7 @@ import argparse
 import os.path as osp
 import torch.nn as nn
 import optimizer as optim
+from queue import Queue
 from enums import PHASE
 from model import models
 from saver import best_model
@@ -10,6 +11,7 @@ from utils import download_dataset
 from configs import configs as dataset_configs
 from datetime import datetime
 from data.set import datasets
+from threading import Thread
 from data.loader import collate_fns
 from metric.level1 import Loss, Proba
 from train.trainer import Trainer
@@ -67,14 +69,6 @@ def main(argv=None):
     optimizer = optim.load(name=args.optimizer,model=model, learning_rate=args.lr)
     error = nn.CrossEntropyLoss(reduction='none')
 
-    level1_metrics = [Loss(), Proba()]
-    loggers = [
-        DataframeLogger(
-            logdir=logdir, base_name=f"{str(datetime.now())}.pd",
-            metric_columns=[metric.name for metric in level1_metrics],
-            model_name=args.model, opt_name=args.optimizer
-        )
-    ]
 
     savers = [best_model.MINMetricValueModelSaver(model, savedir=logdir)]
 
@@ -83,6 +77,14 @@ def main(argv=None):
         batch_size=args.batch_size,
         shuffle=True,
         collate_fn=collate_fns[args.dataset]
+    )
+
+    logQ = Queue()
+    level1_metrics = [Loss(), Proba()]
+    logger = DataframeLogger(
+        logdir=logdir, base_name=f"{str(datetime.now())}.pd",
+        metric_columns=[metric.name for metric in level1_metrics],
+        model_name=args.model, opt_name=args.optimizer, logQ=logQ
     )
 
     trainer = Trainer(
@@ -95,11 +97,18 @@ def main(argv=None):
         num_epochs=args.epochs,
         t_metrics=level1_metrics,
         v_metrics=level1_metrics,
-        loggers=loggers,
-        savers=savers
+        savers=savers,
+        logQ=logQ
     )
 
-    trainer.start()
+    training_thread = Thread(target=trainer.start)
+    log_thread = Thread(target=logger.start)
+    
+    training_thread.start()
+    log_thread.start()
+
+    training_thread.join()
+    log_thread.join()
 
 if __name__ == "__main__":
     main()

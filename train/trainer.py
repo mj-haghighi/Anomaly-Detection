@@ -23,7 +23,7 @@ class Trainer:
         optimizer,
         num_epochs,
         t_metrics: List[IMetric],
-        v_metrics: List[IMetric],        
+        v_metrics: List[IMetric],
         savers: List[IModelSaver],
         logQ: Queue
     ) -> None:
@@ -43,13 +43,15 @@ class Trainer:
     def start(self):
         print('training start ...')
         self.model.to(self.device)
-        
+
         kf = KFold(n_splits=self.num_folds, shuffle=True, random_state=43)
 
         for fold, (train_indices, val_indices) in enumerate(kf.split(self.t_loader.dataset)):
             print(f"\nFold {fold + 1}/{self.num_folds}")
-            t_dataset_fold = torch.utils.data.Subset(self.t_loader.dataset, train_indices)
-            v_dataset_fold = torch.utils.data.Subset(self.t_loader.dataset, val_indices)
+            t_dataset_fold = torch.utils.data.Subset(
+                self.t_loader.dataset, train_indices)
+            v_dataset_fold = torch.utils.data.Subset(
+                self.t_loader.dataset, val_indices)
 
             t_loader_fold = DataLoader(
                 dataset=t_dataset_fold,
@@ -84,11 +86,11 @@ class Trainer:
                     for metric in self.t_metrics:
                         metric.calculate(*train_result)
                     self.logQ.put({
-                        "fold":fold, "epoch":epoch,
-                        "samples":idx, "phase":PHASE.train,
-                        "labels":np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "true_labels":[None for l in labels],
-                        "metrics":self.t_metrics
+                        "fold": fold, "epoch": epoch,
+                        "samples": idx, "phase": PHASE.train,
+                        "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
+                        "true_labels": [None for l in labels],
+                        "metrics": self.t_metrics
                     })
 
                 # validation
@@ -101,7 +103,7 @@ class Trainer:
                     loss_each = self.error(prediction_probs, labels)
                     loss_all = torch.mean(loss_each)
                     validation_epoch_loss.append(loss_all.item())
-                    
+
                     validation_result = (prediction_probs, labels, loss_each)
                     for metric in self.v_metrics:
                         metric.calculate(*validation_result)
@@ -116,3 +118,5 @@ class Trainer:
                 print(f"epoch ({epoch}) | train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:
                     saver.look_for_save(metric_value=np.mean(validation_epoch_loss))
+
+        self.logQ.put("EOF")
