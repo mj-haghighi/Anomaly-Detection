@@ -71,6 +71,7 @@ class Trainer:
                 # train
                 train_epoch_loss = []
                 self.model.train()
+                iteration = 0 
                 for idx, data, labels in t_loader_fold:
                     self.optimizer.zero_grad()
                     data, labels = data.to(self.device), labels.to(self.device)
@@ -86,16 +87,18 @@ class Trainer:
                     for metric in self.t_metrics:
                         metric.calculate(*train_result)
                     self.logQ.put({
-                        "fold": fold, "epoch": epoch,
+                        "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": idx, "phase": PHASE.train,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                         "true_labels": [None for l in labels],
                         "metrics": self.t_metrics
                     })
+                    iteration += 1
 
                 # validation
                 validation_epoch_loss = []
                 self.model.eval()
+                iteration = 0 
                 for idx, data, labels in v_loader_fold:
                     data, labels = data.to(self.device), labels.to(self.device)
                     prediction_values = self.model(data)  # (B, C)
@@ -108,12 +111,13 @@ class Trainer:
                     for metric in self.v_metrics:
                         metric.calculate(*validation_result)
                     self.logQ.put({
-                        "fold": fold, "epoch": epoch,
+                        "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": idx, "phase": PHASE.validation,
-                        "labels": np.argmax(labels.cpu().detach().numpy(), axis=0),
+                        "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                         "true_labels": [None for l in labels],
                         "metrics": self.v_metrics
                     })
+                    iteration += 1
 
                 print(f"epoch ({epoch}) | train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:

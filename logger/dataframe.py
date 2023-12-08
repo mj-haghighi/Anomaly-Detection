@@ -23,7 +23,7 @@ class DataframeLogger(ILogger):
         if not osp.isdir(logdir):
             os.makedirs(logdir)
 
-    def log(self, fold: int, epoch: int, samples: List[str], phase: str, labels: List[str], true_labels: List[str], metrics: List[IMetric]):
+    def log(self, fold: int, epoch: int, iteration: int, samples: List[str], phase: str, labels: List[str], true_labels: List[str], metrics: List[IMetric]):
         batch_size = len(samples)
         for i in range(batch_size):
             self.__log_sample(

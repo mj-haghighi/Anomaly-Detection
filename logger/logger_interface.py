@@ -9,7 +9,7 @@ class ILogger:
     def __init__(self, logQ: Queue):
         self.logQ = logQ
 
-    def log(self, fold: int, epoch: int, samples: List[str], phase: str, labels: List[str], true_labels: List[str], metrics: List[IMetric]):
+    def log(self, fold: int, epoch: int, iteration: int, samples: List[str], phase: str, labels: List[str], true_labels: List[str], metrics: List[IMetric]):
         raise Exception("This is not implemented")
 
     def start(self):
