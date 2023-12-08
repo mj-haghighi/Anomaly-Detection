@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from copy import copy
 from queue import Queue
 from typing import List
 from cProfile import label
@@ -37,7 +38,6 @@ class Trainer:
         self.num_folds = num_folds
         self.optimizer = optimizer
         self.num_epochs = num_epochs
-        self.loggers = loggers
         self.savers = savers
 
     def start(self):
@@ -88,10 +88,9 @@ class Trainer:
                         metric.calculate(*train_result)
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
-                        "samples": idx, "phase": PHASE.train,
+                        "samples": copy(idx), "phase": PHASE.train,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "true_labels": [None for l in labels],
-                        "metrics": self.t_metrics
+                        "metrics": copy(self.t_metrics)
                     })
                     iteration += 1
 
@@ -112,14 +111,13 @@ class Trainer:
                         metric.calculate(*validation_result)
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
-                        "samples": idx, "phase": PHASE.validation,
+                        "samples": copy(idx), "phase": PHASE.validation,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "true_labels": [None for l in labels],
-                        "metrics": self.v_metrics
+                        "metrics": copy(self.v_metrics)
                     })
                     iteration += 1
 
-                print(f"epoch ({epoch}) | train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
+                print(f"epoch ({epoch}) iter ({iteration})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:
                     saver.look_for_save(metric_value=np.mean(validation_epoch_loss))
 
