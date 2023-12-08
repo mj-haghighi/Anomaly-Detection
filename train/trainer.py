@@ -1,14 +1,15 @@
 import torch
 import numpy as np
-from cProfile import label
-from torch.nn.functional import softmax
+from queue import Queue
 from typing import List
+from cProfile import label
+from enums.phase import PHASE
+from torch.utils.data import DataLoader
+from torch.nn.functional import softmax
+from saver.saver_interface import IModelSaver
 from logger.logger_interface import ILogger
 from metric.metric_interface import IMetric
-from saver.saver_interface import IModelSaver
-from enums.phase import PHASE
 from sklearn.model_selection import KFold
-from torch.utils.data import DataLoader
 
 
 class Trainer:
@@ -22,11 +23,11 @@ class Trainer:
         optimizer,
         num_epochs,
         t_metrics: List[IMetric],
-        v_metrics: List[IMetric],
-        loggers: List[ILogger],
-        savers: List[IModelSaver]
+        v_metrics: List[IMetric],        
+        savers: List[IModelSaver],
+        logQ: Queue
     ) -> None:
-
+        self.logQ = logQ
         self.model = model
         self.error = error
         self.device = device
@@ -82,12 +83,13 @@ class Trainer:
                     train_result = (prediction_probs, labels, loss_each)
                     for metric in self.t_metrics:
                         metric.calculate(*train_result)
-                    for logger in self.loggers:
-                        logger.log(
-                            fold=fold, epoch=epoch, samples=idx, phase=PHASE.train,
-                            labels=np.argmax(labels.cpu().detach().numpy(), axis=1),
-                            true_labels=[None for l in labels],
-                            metrics=self.t_metrics)
+                    self.logQ.put({
+                        "fold":fold, "epoch":epoch,
+                        "samples":idx, "phase":PHASE.train,
+                        "labels":np.argmax(labels.cpu().detach().numpy(), axis=1),
+                        "true_labels":[None for l in labels],
+                        "metrics":self.t_metrics
+                    })
 
                 # validation
                 validation_epoch_loss = []
@@ -99,15 +101,17 @@ class Trainer:
                     loss_each = self.error(prediction_probs, labels)
                     loss_all = torch.mean(loss_each)
                     validation_epoch_loss.append(loss_all.item())
+                    
                     validation_result = (prediction_probs, labels, loss_each)
                     for metric in self.v_metrics:
                         metric.calculate(*validation_result)
-                    for logger in self.loggers:
-                        logger.log(
-                            fold=fold, epoch=epoch, samples=idx, phase=PHASE.validation,
-                            labels=np.argmax(labels.cpu().detach().numpy(), axis=1),
-                            true_labels=[None for l in labels],
-                            metrics=self.v_metrics)
+                    self.logQ.put({
+                        "fold": fold, "epoch": epoch,
+                        "samples": idx, "phase": PHASE.validation,
+                        "labels": np.argmax(labels.cpu().detach().numpy(), axis=0),
+                        "true_labels": [None for l in labels],
+                        "metrics": self.v_metrics
+                    })
 
                 print(f"epoch ({epoch}) | train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:
