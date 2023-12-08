@@ -1,3 +1,4 @@
+import time
 import torch
 import numpy as np
 from copy import copy
@@ -68,6 +69,7 @@ class Trainer:
             )
 
             for epoch in range(self.num_epochs):
+                start_time = time.time()
                 # train
                 train_epoch_loss = []
                 self.model.train()
@@ -120,8 +122,9 @@ class Trainer:
                         "metrics": metric_results
                     })
                     iteration += 1
+                elapsed_time = time.time() - start_time
 
-                print(f"epoch ({epoch}) iter ({iteration})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
+                print(f"epoch ({epoch}) duration ({time.strftime('%H:%M:%S', time.gmtime(elapsed_time))})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:
                     saver.look_for_save(metric_value=np.mean(validation_epoch_loss))
 
