@@ -15,11 +15,7 @@ class Loss(IMetric):
             labels: data labels in term of categorical. (B:batch size, C: number of classes)
             loss: loss per sample
         """
-        self.__loss = loss.cpu().detach().numpy()
-
-    @property
-    def value(self):
-        return self.__loss
+        return (self.name, loss.cpu().detach().numpy())
 
     @property
     def name(self):

@@ -84,13 +84,15 @@ class Trainer:
                     self.optimizer.step()
 
                     train_result = (prediction_probs, labels, loss_each)
+                    metric_results = []
                     for metric in self.t_metrics:
-                        metric.calculate(*train_result)
+                        metric_results.append(metric.calculate(*train_result))
+
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": copy(idx), "phase": PHASE.train,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "metrics": copy(self.t_metrics)
+                        "metrics": metric_results
                     })
                     iteration += 1
 
@@ -107,13 +109,15 @@ class Trainer:
                     validation_epoch_loss.append(loss_all.item())
 
                     validation_result = (prediction_probs, labels, loss_each)
+                    metric_results = []
                     for metric in self.v_metrics:
-                        metric.calculate(*validation_result)
+                        metric_results.append(metric.calculate(*validation_result))
+
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": copy(idx), "phase": PHASE.validation,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "metrics": copy(self.v_metrics)
+                        "metrics": metric_results
                     })
                     iteration += 1
 

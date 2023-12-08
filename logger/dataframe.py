@@ -32,7 +32,7 @@ class DataframeLogger(ILogger):
                 fold=fold, iteration=iteration,
                 epoch=epoch, sample=samples[i], phase=phase,
                 label=labels[i],
-                metrics={metric.name: metric.value[i] for metric in metrics}
+                metrics={name: value[i] for name, value in metrics}
             )
         self.dataframe.to_pickle(osp.join(self.logdir, f"{fold}|{epoch :03d}|{iteration :04d}|{self.base_name}"))
 

@@ -6,7 +6,7 @@ class Proba(IMetric):
 
     def __init__(self):
         self.loss = None
-    
+
     def calculate(self, prediction_probs: torch.Tensor, labels: torch.Tensor, loss):
         """ 
         Calculate metric
@@ -15,12 +15,7 @@ class Proba(IMetric):
             labels: data labels in term of categorical. (B:batch size, C: number of classes)
             loss: loss per sample
         """
-        self.__proba = prediction_probs.cpu().detach().numpy()
-
-
-    @property
-    def value(self):
-        return self.__proba
+        return (self.name, prediction_probs.cpu().detach().numpy())
 
     @property
     def name(self):
