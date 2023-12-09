@@ -11,10 +11,10 @@ class IModelSaver:
         self.locked_metric = lock_on
         self.savedir = savedir
 
-    def look_for_save(self, v_dynamics, t_dynamics: Dynamics, metric_value=None):
+    def look_for_save(self, metric_value: float, epoch: int):
         raise Exception("This method is not implemented")
 
-    def save_model(self):
-        path = osp.join(self.savedir, 'best_model.pt')
+    def save_model(self, epoch):
+        path = osp.join(self.savedir, f'epoch:{epoch}|best_model.pt')
         print('best model saved!, according to following metric = {:.4}'.format(self.best_value))
         torch.save(self.model.state_dict(), path)

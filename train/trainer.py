@@ -126,6 +126,6 @@ class Trainer:
 
                 print(f"epoch ({epoch}) duration ({time.strftime('%H:%M:%S', time.gmtime(elapsed_time))})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                 for saver in self.savers:
-                    saver.look_for_save(metric_value=np.mean(validation_epoch_loss))
+                    saver.look_for_save(metric_value=np.mean(validation_epoch_loss), epoch=epoch)
 
         self.logQ.put("EOF")
