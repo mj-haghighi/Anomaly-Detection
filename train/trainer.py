@@ -1,6 +1,7 @@
 import time
 import torch
 import numpy as np
+import tqdm
 from copy import copy
 from queue import Queue
 from typing import List
@@ -68,7 +69,7 @@ class Trainer:
                 collate_fn=self.t_loader.collate_fn
             )
 
-            for epoch in range(self.num_epochs):
+            for epoch in tqdm.tqdm(range(self.num_epochs), desc=f"Epoch {fold + 1}/{self.num_epochs} - Training"):
                 start_time = time.time()
                 # train
                 train_epoch_loss = []
