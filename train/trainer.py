@@ -12,6 +12,7 @@ from saver.saver_interface import IModelSaver
 from logger.logger_interface import ILogger
 from metric.metric_interface import IMetric
 from sklearn.model_selection import KFold
+from utils.loss_reduction import median
 
 
 class Trainer:
@@ -27,7 +28,8 @@ class Trainer:
         t_metrics: List[IMetric],
         v_metrics: List[IMetric],
         savers: List[IModelSaver],
-        logQ: Queue
+        logQ: Queue,
+        loss_reduction_method='mean'
     ) -> None:
         self.logQ = logQ
         self.model = model
@@ -40,6 +42,7 @@ class Trainer:
         self.optimizer = optimizer
         self.num_epochs = num_epochs
         self.savers = savers
+        self.loss_reduction_method = loss_reduction_method
 
     def start(self):
         print('training start ...')
@@ -80,7 +83,12 @@ class Trainer:
                     prediction_values = self.model(data)  # (B, C)
                     prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                     loss_each = self.error(prediction_probs, labels)
-                    loss_all = torch.mean(loss_each)
+                    if self.loss_reduction_method == 'mean':
+                        loss_all = torch.mean(loss_each)
+                    elif self.loss_reduction_method == 'median':
+                        loss_all = median(loss_each)
+                    else:
+                        raise Exception(f"Unknown loss reduction method {self.loss_reduction_method}")
                     train_epoch_loss.append(loss_all.item())
                     loss_all.backward()
                     self.optimizer.step()
@@ -93,6 +101,7 @@ class Trainer:
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": copy(idx), "phase": PHASE.train,
+                        "loss_reduction": self.loss_reduction_method,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                         "metrics": metric_results
                     })
@@ -107,7 +116,12 @@ class Trainer:
                     prediction_values = self.model(data)  # (B, C)
                     prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                     loss_each = self.error(prediction_probs, labels)
-                    loss_all = torch.mean(loss_each)
+                    if self.loss_reduction_method == 'mean':
+                        loss_all = torch.mean(loss_each)
+                    elif self.loss_reduction_method == 'median':
+                        loss_all = median(loss_each)
+                    else:
+                        raise Exception(f"Unknown loss reduction method {self.loss_reduction_method}")
                     validation_epoch_loss.append(loss_all.item())
 
                     validation_result = (prediction_probs, labels, loss_each)
@@ -118,6 +132,7 @@ class Trainer:
                     self.logQ.put({
                         "fold": fold, "epoch": epoch, "iteration": iteration,
                         "samples": copy(idx), "phase": PHASE.validation,
+                        "loss_reduction": self.loss_reduction_method,
                         "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                         "metrics": metric_results
                     })

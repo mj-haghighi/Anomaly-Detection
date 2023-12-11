@@ -46,6 +46,8 @@ def parse_args():
                         choices=[0, 0.03, 0.07, 0.13], help='injected noise precentage of dataset')
     parser.add_argument('--noise_sparsity', type=float, default=0, choices=[
                         0, 0.2, 0.4, 0.6], help='sparsity of injected noise to the dataset (fraction of off-diagonal zeros in noise matrix)')
+    parser.add_argument('--lose_reduction', type=str, default='mean', choices=[
+                        'mean', 'median'], help='choose loss reduction method')
 
     args = parser.parse_args()
     return args
@@ -98,7 +100,8 @@ def main(argv=None):
         t_metrics=level1_metrics,
         v_metrics=level1_metrics,
         savers=savers,
-        logQ=logQ
+        logQ=logQ,
+        loss_reduction_method=args.loss_reduction
     )
 
     training_thread = Thread(target=trainer.start)
