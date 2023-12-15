@@ -59,7 +59,7 @@ def parse_args():
 
 def main(argv=None):
     args = parse_args()
-    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, args.params, f'ni{args.inject_noise}', f'ns{args.noise_sparsity}', f'lr{args.lr}')
+    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, args.params, args.lr_scheduler, f'ni{args.inject_noise}', f'ns{args.noise_sparsity}', f'lr{args.lr}')
     log_configs(args, logdir)
 
     download_dataset(args.dataset)
