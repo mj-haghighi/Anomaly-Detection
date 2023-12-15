@@ -14,6 +14,7 @@ from datetime import datetime
 from data.set import datasets
 from threading import Thread
 from data.loader import collate_fns
+from lrscheduler import apply_lrscheduler
 from utils.params import init_kaiming_normal
 from metric.level1 import Loss, Proba
 from train.trainer import Trainer
@@ -23,13 +24,14 @@ from torch.utils.data import DataLoader
 from utils.log_configs import log_configs
 from utils.inject_noise_to_dataset import inject_noise_to_dataset
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     parser.add_argument('--dataset', type=str,
                         choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
     parser.add_argument('--model', type=str, default='resnet18',
                         choices=['resnet18', 'resnet34'], help='choose model')
+    parser.add_argument('--lr_scheduler', type=str, default='none',
+                        choices=['none', 'cosine_annealingLR'], help='choose learning rate scheduler')
     parser.add_argument('--params', type=str, default=PARAMS.pretrain,
                         choices=[PARAMS.pretrain, PARAMS.kaiming_normal], help='choose params initialization')
     parser.add_argument('--epochs', type=int, default=20,
@@ -76,6 +78,7 @@ def main(argv=None):
         model = models[args.model](num_classes=num_classes, pretrain=True)
 
     optimizer = optim.load(name=args.optimizer,model=model, learning_rate=args.lr)
+    lr_scheduler = apply_lrscheduler(optimizer, args.lr_scheduler)
     error = nn.CrossEntropyLoss(reduction='none')
 
 
@@ -103,6 +106,7 @@ def main(argv=None):
         t_loader=t_loader,
         num_folds=args.folds,
         optimizer=optimizer,
+        lr_scheduler=lr_scheduler,
         num_epochs=args.epochs,
         t_metrics=level1_metrics,
         v_metrics=level1_metrics,

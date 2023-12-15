@@ -23,6 +23,7 @@ class Trainer:
         t_loader,
         num_folds,
         optimizer,
+        lr_scheduler,
         num_epochs,
         t_metrics: List[IMetric],
         v_metrics: List[IMetric],
@@ -40,6 +41,7 @@ class Trainer:
         self.optimizer = optimizer
         self.num_epochs = num_epochs
         self.savers = savers
+        self.lr_scheduler = lr_scheduler
 
     def start(self):
         print('training start ...')
@@ -128,5 +130,8 @@ class Trainer:
                     print(f"epoch ({epoch}) duration ({time.strftime('%H:%M:%S', time.gmtime(elapsed_time))})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
                     for saver in self.savers:
                         saver.look_for_save(metric_value=np.mean(validation_epoch_loss), epoch=epoch)
+
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
 
         self.logQ.put("EOF")
