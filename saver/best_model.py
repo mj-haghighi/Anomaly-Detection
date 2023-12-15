@@ -21,7 +21,7 @@ class MINMetricValueModelSaver(IModelSaver):
         super().__init__(model, savedir, helper_in_compare, lock_on)
         self.best_value = math.inf
 
-    def look_for_save(self, metric_value: float, epoch: int):
+    def look_for_save(self, metric_value: float, epoch: int, fold: int = None):
         if self.locked_metric is not None:
             metric_value = self.helper(self.locked_metric.value)
         if metric_value < self.best_value:
