@@ -5,6 +5,7 @@ import torch.nn as nn
 import optimizer as optim
 from queue import Queue
 from enums import PHASE
+from enums import PARAMS
 from model import models
 from saver import best_model
 from utils import download_dataset
@@ -13,6 +14,7 @@ from datetime import datetime
 from data.set import datasets
 from threading import Thread
 from data.loader import collate_fns
+from utils.params import init_kaiming_normal
 from metric.level1 import Loss, Proba
 from train.trainer import Trainer
 from data.transforms import transforms
@@ -28,6 +30,8 @@ def parse_args():
                         choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
     parser.add_argument('--model', type=str, default='resnet18',
                         choices=['resnet18', 'resnet34'], help='choose model')
+    parser.add_argument('--params', type=str, default=PARAMS.pretrain,
+                        choices=[PARAMS.pretrain, PARAMS.kaiming_normal], help='choose params initialization')
     parser.add_argument('--epochs', type=int, default=20,
                         help='max number of epochs')
     parser.add_argument('--batch_size', type=int,
@@ -53,7 +57,7 @@ def parse_args():
 
 def main(argv=None):
     args = parse_args()
-    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, f'ni{args.inject_noise}', f'ns{args.noise_sparsity}', f'lr{args.lr}')
+    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, args.params, f'ni{args.inject_noise}', f'ns{args.noise_sparsity}', f'lr{args.lr}')
     log_configs(args, logdir)
 
     download_dataset(args.dataset)
@@ -65,7 +69,12 @@ def main(argv=None):
     t_dataset = datasets[args.dataset](phase=PHASE.train, transform=t_taransfm)
 
     num_classes = len(dataset_configs[args.dataset].classes)
-    model = models[args.model](num_classes=num_classes)
+    if args.params == PARAMS.kaiming_normal:
+        model = models[args.model](num_classes=num_classes, pretrain=False)
+        init_kaiming_normal(model)
+    else:
+        model = models[args.model](num_classes=num_classes, pretrain=True)
+
     optimizer = optim.load(name=args.optimizer,model=model, learning_rate=args.lr)
     error = nn.CrossEntropyLoss(reduction='none')
 

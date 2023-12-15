@@ -3,9 +3,12 @@ import torch.nn.functional as F
 
 
 class Resnet34(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, pretrain=True):
         super(Resnet34, self).__init__()
-        self.resnet = models.resnet34(pretrained=True)
+        if pretrain:
+            self.resnet = models.resnet34(weights=ResNet34_Weights.IMAGENET1K_V1)
+        else:
+            self.resnet = models.resnet34()
 
         # Modify the final classification layer for the number of classes in CIFAR-10
         in_features = self.resnet.fc.in_features

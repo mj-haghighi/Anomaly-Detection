@@ -4,9 +4,12 @@ from torchvision import models
 from torchvision.models import ResNet18_Weights
 
 class Resnet18(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, pretrain=True):
         super(Resnet18, self).__init__()
-        self.resnet18 = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+        if pretrain:
+            self.resnet18 = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+        else:
+            self.resnet18 = models.resnet18()
 
         # Modify the final classification layer for the number of classes in CIFAR-10
         in_features = self.resnet18.fc.in_features
