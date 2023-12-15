@@ -99,33 +99,34 @@ class Trainer:
                     iteration += 1
 
                 # validation
-                validation_epoch_loss = []
-                self.model.eval()
-                iteration = 0 
-                for idx, data, labels in v_loader_fold:
-                    data, labels = data.to(self.device), labels.to(self.device)
-                    prediction_values = self.model(data)  # (B, C)
-                    prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
-                    loss_each = self.error(prediction_probs, labels)
-                    loss_all = torch.mean(loss_each)
-                    validation_epoch_loss.append(loss_all.item())
+                with torch.no_grad():
+                    validation_epoch_loss = []
+                    self.model.eval()
+                    iteration = 0 
+                    for idx, data, labels in v_loader_fold:
+                        data, labels = data.to(self.device), labels.to(self.device)
+                        prediction_values = self.model(data)  # (B, C)
+                        prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
+                        loss_each = self.error(prediction_probs, labels)
+                        loss_all = torch.mean(loss_each)
+                        validation_epoch_loss.append(loss_all.item())
 
-                    validation_result = (prediction_probs, labels, loss_each)
-                    metric_results = []
-                    for metric in self.v_metrics:
-                        metric_results.append(metric.calculate(*validation_result))
+                        validation_result = (prediction_probs, labels, loss_each)
+                        metric_results = []
+                        for metric in self.v_metrics:
+                            metric_results.append(metric.calculate(*validation_result))
 
-                    self.logQ.put({
-                        "fold": fold, "epoch": epoch, "iteration": iteration,
-                        "samples": copy(idx), "phase": PHASE.validation,
-                        "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
-                        "metrics": metric_results
-                    })
-                    iteration += 1
-                elapsed_time = time.time() - start_time
+                        self.logQ.put({
+                            "fold": fold, "epoch": epoch, "iteration": iteration,
+                            "samples": copy(idx), "phase": PHASE.validation,
+                            "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
+                            "metrics": metric_results
+                        })
+                        iteration += 1
+                    elapsed_time = time.time() - start_time
 
-                print(f"epoch ({epoch}) duration ({time.strftime('%H:%M:%S', time.gmtime(elapsed_time))})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
-                for saver in self.savers:
-                    saver.look_for_save(metric_value=np.mean(validation_epoch_loss), epoch=epoch)
+                    print(f"epoch ({epoch}) duration ({time.strftime('%H:%M:%S', time.gmtime(elapsed_time))})| train-loss ({np.mean(train_epoch_loss)}) | val-loss ({np.mean(validation_epoch_loss)})")
+                    for saver in self.savers:
+                        saver.look_for_save(metric_value=np.mean(validation_epoch_loss), epoch=epoch)
 
         self.logQ.put("EOF")
