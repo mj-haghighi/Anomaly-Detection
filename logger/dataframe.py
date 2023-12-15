@@ -19,8 +19,7 @@ class DataframeLogger(ILogger):
         self.opt_name = opt_name
         self.base_name = base_name
         self.path = osp.join(logdir, base_name)
-        self.column_names = ['model', 'optimizer', 'epoch', 'fold', 'iteration', 
-                             'sample', 'label', 'phase']
+        self.column_names = ['sample', 'label', 'phase']
         if metric_columns:
             self.column_names.extend(metric_columns)
 
@@ -32,18 +31,15 @@ class DataframeLogger(ILogger):
         batch_size = len(samples)
         for i in range(batch_size):
             self.__log_sample(
-                fold=fold, iteration=iteration,
-                epoch=epoch, sample=samples[i], phase=phase,
-                label=labels[i],
+                sample=samples[i], label=labels[i],
                 metrics={name: value[i] for name, value in metrics}
             )
-        self.dataframe.to_pickle(osp.join(self.logdir, f"{fold}|{epoch :03d}|{iteration :04d}|{self.base_name}"))
+        directory = osp.join(self.logdir, f"{fold}", phase, f"{epoch :03d}")
+        if not osp.exists(directory):
+            os.makedirs(directory)
+        self.dataframe.to_pickle(osp.join(directory, f"{iteration :04d}-{self.base_name}"))
 
-    def __log_sample(self, fold: int, epoch: int, iteration: int, sample: str, phase: str, label: str, metrics: Dict[str, float]):
-        data = {
-            "fold": fold, "iteration": iteration,
-            "model": self.model_name, "optimizer": self.opt_name,
-            "epoch": epoch, "sample": sample, "phase": phase,
-            "label": label}
+    def __log_sample(self, sample: str, label: str, metrics: Dict[str, float]):
+        data = {"sample": sample, "label": label}
         data.update(metrics)
         self.dataframe = self.dataframe._append(data, ignore_index=True)

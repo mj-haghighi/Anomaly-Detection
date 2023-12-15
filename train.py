@@ -53,7 +53,7 @@ def parse_args():
 
 def main(argv=None):
     args = parse_args()
-    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer)
+    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, f'ni{args.inject_noise}', f'ns{args.noise_sparsity}', f'lr{args.lr}')
     log_configs(args, logdir)
 
     download_dataset(args.dataset)
@@ -82,7 +82,7 @@ def main(argv=None):
     logQ = Queue()
     level1_metrics = [Loss(), Proba()]
     logger = DataframeLogger(
-        logdir=logdir, base_name=f"{str(datetime.now())}.pd",
+        logdir=logdir, base_name=f"log.pd",
         metric_columns=[metric.name for metric in level1_metrics],
         model_name=args.model, opt_name=args.optimizer, logQ=logQ
     )
