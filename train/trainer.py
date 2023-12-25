@@ -12,7 +12,7 @@ from saver.saver_interface import IModelSaver
 from logger.logger_interface import ILogger
 from metric.metric_interface import IMetric
 from sklearn.model_selection import KFold
-from utils.loss_reduction import median
+from utils import loss_reductions
 
 
 class Trainer:
@@ -83,12 +83,7 @@ class Trainer:
                     prediction_values = self.model(data)  # (B, C)
                     prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                     loss_each = self.error(prediction_probs, labels)
-                    if self.loss_reduction_method == 'mean':
-                        loss_all = torch.mean(loss_each)
-                    elif self.loss_reduction_method == 'median':
-                        loss_all = median(loss_each)
-                    else:
-                        raise Exception(f"Unknown loss reduction method {self.loss_reduction_method}")
+                    loss_all = loss_reductions[self.loss_reduction_method](loss_each)
                     train_epoch_loss.append(loss_all.item())
                     loss_all.backward()
                     self.optimizer.step()
@@ -116,12 +111,7 @@ class Trainer:
                     prediction_values = self.model(data)  # (B, C)
                     prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
                     loss_each = self.error(prediction_probs, labels)
-                    if self.loss_reduction_method == 'mean':
-                        loss_all = torch.mean(loss_each)
-                    elif self.loss_reduction_method == 'median':
-                        loss_all = median(loss_each)
-                    else:
-                        raise Exception(f"Unknown loss reduction method {self.loss_reduction_method}")
+                    loss_all = loss_reductions[self.loss_reduction_method](loss_each)
                     validation_epoch_loss.append(loss_all.item())
 
                     validation_result = (prediction_probs, labels, loss_each)

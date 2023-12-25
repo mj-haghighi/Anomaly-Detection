@@ -4,3 +4,4 @@ from .dataset import DATASETS
 from .model import MODELS
 from .phase import PHASE
 from .ext import EXT
+from .loss_reduction import LOSS_REDUCTION
