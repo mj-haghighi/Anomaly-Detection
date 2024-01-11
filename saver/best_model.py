@@ -8,12 +8,12 @@ class MAXMetricValueModelSaver(IModelSaver):
         super().__init__(model, savedir, helper_in_compare, lock_on)
         self.best_value = -math.inf
 
-    def look_for_save(self, metric_value: float, epoch: int):
+    def look_for_save(self, metric_value: float, epoch: int, fold: int = None):
         if self.locked_metric is not None:
             metric_value = self.helper(self.locked_metric.value)
         if metric_value > self.best_value:
             self.best_value = metric_value
-            super().save_model(epoch=epoch)
+            super().save_model(epoch=epoch, fold=fold)
 
 
 class MINMetricValueModelSaver(IModelSaver):
@@ -26,4 +26,4 @@ class MINMetricValueModelSaver(IModelSaver):
             metric_value = self.helper(self.locked_metric.value)
         if metric_value < self.best_value:
             self.best_value = metric_value
-            super().save_model(epoch=epoch)
+            super().save_model(epoch=epoch, fold=fold)
