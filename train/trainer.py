@@ -80,8 +80,8 @@ class Trainer:
                     self.optimizer.zero_grad()
                     data, labels = data.to(self.device), labels.to(self.device)
                     prediction_values = self.model(data)  # (B, C)
+                    loss_each = self.error(prediction_values, labels)
                     prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
-                    loss_each = self.error(prediction_probs, labels)
                     loss_all = torch.mean(loss_each)
                     train_epoch_loss.append(loss_all.item())
                     loss_all.backward()
@@ -108,8 +108,8 @@ class Trainer:
                     for idx, data, labels in v_loader_fold:
                         data, labels = data.to(self.device), labels.to(self.device)
                         prediction_values = self.model(data)  # (B, C)
+                        loss_each = self.error(prediction_values, labels)
                         prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
-                        loss_each = self.error(prediction_probs, labels)
                         loss_all = torch.mean(loss_each)
                         validation_epoch_loss.append(loss_all.item())
 
