@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torchvision import models
 from torchvision.models import ResNet18_Weights
 
+
 class Resnet18(nn.Module):
     def __init__(self, num_classes, pretrain=True):
         super(Resnet18, self).__init__()
@@ -14,6 +15,9 @@ class Resnet18(nn.Module):
         # Modify the final classification layer for the number of classes in CIFAR-10
         in_features = self.resnet18.fc.in_features
         self.resnet18.fc = nn.Linear(in_features, num_classes)
+
+    def load_state_dict(self, state_dict):
+        self.resnet18.load_state_dict(state_dict)
 
     def forward(self, x):
         return self.resnet18(x)

@@ -14,5 +14,8 @@ class Resnet34(nn.Module):
         in_features = self.resnet.fc.in_features
         self.resnet.fc = nn.Linear(in_features, num_classes)
 
+    def load_state_dict(self, state_dict):
+        self.resnet18.load_state_dict(state_dict)
+
     def forward(self, x):
         return self.resnet(x)
