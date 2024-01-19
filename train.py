@@ -34,12 +34,12 @@ def parse_args():
                         choices=['none', 'cosine_annealingLR'], help='choose learning rate scheduler')
     parser.add_argument('--params', type=str, default=PARAMS.pretrain,
                         choices=[PARAMS.pretrain, PARAMS.kaiming_normal], help='choose params initialization')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='max number of epochs')
     parser.add_argument('--batch_size', type=int,
                         default=64, help='batch size')
     parser.add_argument('--folds', type=int,
-                        default=5, help='number of folds in cross validation')
+                        default=3, help='number of folds in cross validation')
     parser.add_argument('--lr', type=float, default=0.0001,
                         help='learning rate')
     parser.add_argument('--logdir', type=str,
