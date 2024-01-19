@@ -17,7 +17,7 @@ class IModelSaver:
 
     def save_model(self, epoch: int, fold: int = None):
         path = self.savedir
-        if fold:
+        if fold is not None:
             path = osp.join(path, f'{fold}')
         
         if not osp.exists(path):
