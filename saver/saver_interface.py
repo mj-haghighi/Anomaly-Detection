@@ -17,9 +17,13 @@ class IModelSaver:
 
     def save_model(self, epoch: int, fold: int = None):
         path = self.savedir
+
+        if epoch == 0:
+            self.last_model = None
+
         if fold is not None:
             path = osp.join(path, f'{fold}')
-        
+
         if not osp.exists(path):
             os.makedirs(path)
         path = osp.join(path, f'ep{epoch}-best_model.pt')
