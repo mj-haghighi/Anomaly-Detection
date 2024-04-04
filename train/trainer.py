@@ -17,31 +17,35 @@ from sklearn.model_selection import KFold
 class Trainer:
     def __init__(
         self,
+        logQ: Queue,
         model,
         error,
         device,
-        t_loader,
         num_folds,
         optimizer,
-        lr_scheduler,
+        collate_fn,
+        batch_size,
         num_epochs,
+        lr_scheduler,
+        train_dataset,
         t_metrics: List[IMetric],
         v_metrics: List[IMetric],
         savers: List[IModelSaver],
-        logQ: Queue
     ) -> None:
-        self.logQ = logQ
-        self.model = model
-        self.error = error
-        self.device = device
-        self.t_metrics = t_metrics
-        self.v_metrics = v_metrics
-        self.t_loader = t_loader
-        self.num_folds = num_folds
-        self.optimizer = optimizer
-        self.num_epochs = num_epochs
-        self.savers = savers
-        self.lr_scheduler = lr_scheduler
+        self.logQ          = logQ
+        self.model         = model
+        self.error         = error
+        self.device        = device
+        self.savers        = savers
+        self.t_metrics     = t_metrics
+        self.v_metrics     = v_metrics
+        self.num_folds     = num_folds
+        self.optimizer     = optimizer
+        self.collate_fn    = collate_fn
+        self.batch_size    = batch_size
+        self.num_epochs    = num_epochs
+        self.lr_scheduler  = lr_scheduler
+        self.train_dataset = train_dataset
 
     def start(self):
         print('training start ...')
@@ -49,25 +53,23 @@ class Trainer:
 
         kf = KFold(n_splits=self.num_folds, shuffle=True, random_state=43)
 
-        for fold, (train_indices, val_indices) in enumerate(kf.split(self.t_loader.dataset)):
+        for fold, (train_indices, val_indices) in enumerate(kf.split(self.train_dataset)):
             print(f"\nFold {fold + 1}/{self.num_folds}")
-            t_dataset_fold = torch.utils.data.Subset(
-                self.t_loader.dataset, train_indices)
-            v_dataset_fold = torch.utils.data.Subset(
-                self.t_loader.dataset, val_indices)
+            t_dataset_fold = torch.utils.data.Subset(self.train_dataset, train_indices)
+            v_dataset_fold = torch.utils.data.Subset(self.train_dataset, val_indices)
 
             t_loader_fold = DataLoader(
                 dataset=t_dataset_fold,
-                batch_size=self.t_loader.batch_size,
+                batch_size=self.train_loader.batch_size,
                 shuffle=True,
-                collate_fn=self.t_loader.collate_fn
+                collate_fn=self.collate_fn
             )
 
             v_loader_fold = DataLoader(
                 dataset=v_dataset_fold,
-                batch_size=self.t_loader.batch_size,
+                batch_size=self.train_loader.batch_size,
                 shuffle=False,
-                collate_fn=self.t_loader.collate_fn
+                collate_fn=self.collate_fn
             )
 
             for epoch in range(self.num_epochs):
