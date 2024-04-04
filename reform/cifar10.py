@@ -4,6 +4,7 @@ import pickle
 import shutil
 import random
 import numpy as np
+import pandas as pd
 import os.path as osp
 from PIL import Image
 from typing import List
@@ -12,11 +13,14 @@ random.seed(47)
 
 def write_images(
     base_dir,
+    data_category,
     batch_labels,
     batch_data,
     file_names,
-    count, label_names
+    count, label_names, 
+    database_info
 ):
+    base_dir = osp.join(base_dir, data_category)
     labels = []
     for i in range(count):
         file_name = file_names[i]
@@ -25,8 +29,11 @@ def write_images(
         label = batch_labels[i]
 
         img = Image.fromarray(data)
-        img.save(osp.join(
-            base_dir, label_names[label], file_name.decode("utf-8")), format="PNG")
+        img_path = osp.join(base_dir, label_names[label], file_name.decode("utf-8"))
+        img.save(img_path, format="PNG")
+        data_entry = {'path': img_path, 'true_label': label, 'category': data_category}
+        database_info = database_info._append(data_entry, ignore_index = True)
+    return database_info
 
 
 def split_validation(train_data_dir: str, validation_data_dir: str, validation_split=0.2):
@@ -55,6 +62,9 @@ def reform_datset(
         reform_dir: str,
         data_dir: str
 ):
+    columns = ['path', 'true_label', 'category']
+    # Create an empty DataFrame
+    df = pd.DataFrame(columns=columns)
 
     data_batches_path = osp.join(data_dir, 'data_batch_*')
     test_batch_path = osp.join(data_dir, 'test_batch')
@@ -69,7 +79,6 @@ def reform_datset(
 
     test = "test"
     train = "train"
-    validation = "validation"
 
     for label in label_names:
         if not osp.isdir(osp.join(reform_dir, train, label)):
@@ -77,9 +86,6 @@ def reform_datset(
 
         if not osp.isdir(osp.join(reform_dir, test, label)):
             os.makedirs(osp.join(reform_dir, test, label))
-
-        if not osp.isdir(osp.join(reform_dir, validation, label)):
-            os.makedirs(osp.join(reform_dir, validation, label))
 
     data_files = sorted(glob.glob(data_batches_path))
 
@@ -92,12 +98,14 @@ def reform_datset(
         batch_data = content[b'data']
         file_names = content[b'filenames']
 
-        write_images(base_dir=osp.join(reform_dir, train),
+        df = write_images(base_dir=reform_dir,
+                     data_category = train,
                      batch_labels=batch_labels,
                      batch_data=batch_data,
                      file_names=file_names,
                      count=num_cases_per_batch,
-                     label_names=label_names)
+                     label_names=label_names,
+                     database_info=df)
 
     file = open(test_batch_path, mode='rb')
     content = pickle.load(file, encoding='bytes')
@@ -107,9 +115,12 @@ def reform_datset(
     batch_data = content[b'data']
     file_names = content[b'filenames']
 
-    write_images(base_dir=osp.join(reform_dir, test),
+    df = write_images(base_dir=reform_dir,
+                 data_category = test,
                  batch_labels=batch_labels,
                  batch_data=batch_data,
                  file_names=file_names,
                  count=num_cases_per_batch,
-                 label_names=label_names)
+                 label_names=label_names, 
+                 database_info=df)
+    df.to_csv(osp.join(reform_dir, 'info.csv'), index=False)
