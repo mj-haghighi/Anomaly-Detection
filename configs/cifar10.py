@@ -15,6 +15,7 @@ class Config(IConfig):
     raw_data_folder = 'cifar-10-batches-py'
     classes = ['airplane', 'automobile', 'bird', 'cat',
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+    labels = list(range(10))
     mean = [0.49139968, 0.48215827, 0.44653124]
     std = [0.24703233, 0.24348505, 0.26158768]
     trainset = 'train/'
