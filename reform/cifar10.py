@@ -13,14 +13,14 @@ random.seed(47)
 
 def write_images(
     base_dir,
-    data_category,
+    data_phase,
     batch_labels,
     batch_data,
     file_names,
     count, label_names, 
     database_info
 ):
-    base_dir = osp.join(base_dir, data_category)
+    base_dir = osp.join(base_dir, data_phase)
     labels = []
     for i in range(count):
         file_name = file_names[i]
@@ -31,7 +31,7 @@ def write_images(
         img = Image.fromarray(data)
         img_path = osp.join(base_dir, label_names[label], file_name.decode("utf-8"))
         img.save(img_path, format="PNG")
-        data_entry = {'path': img_path, 'true_label': label, 'category': data_category}
+        data_entry = {'path': img_path, 'true_label': label, 'phase': data_phase}
         database_info = database_info._append(data_entry, ignore_index = True)
     return database_info
 
@@ -62,7 +62,7 @@ def reform_datset(
         reform_dir: str,
         data_dir: str
 ):
-    columns = ['path', 'true_label', 'category']
+    columns = ['path', 'true_label', 'phase']
     # Create an empty DataFrame
     df = pd.DataFrame(columns=columns)
 
@@ -99,7 +99,7 @@ def reform_datset(
         file_names = content[b'filenames']
 
         df = write_images(base_dir=reform_dir,
-                     data_category = train,
+                     data_phase = train,
                      batch_labels=batch_labels,
                      batch_data=batch_data,
                      file_names=file_names,
@@ -116,7 +116,7 @@ def reform_datset(
     file_names = content[b'filenames']
 
     df = write_images(base_dir=reform_dir,
-                 data_category = test,
+                 data_phase = test,
                  batch_labels=batch_labels,
                  batch_data=batch_data,
                  file_names=file_names,
