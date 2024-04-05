@@ -13,12 +13,12 @@ from torch.utils.data import Dataset as TorchDataset
 
 class GeneralDataset(TorchDataset, IDataset):
     def __init__(self, dataset_name: str, label_column, phase, transform=None):
-        self.dataset_name = dataset_name
-        self.label_column = label_column
-        self.samples = self.__collect_samples()
-        self.transform = transform
-        self.phase = phase
+        self.phase          = phase
+        self.dataset_name   = dataset_name
+        self.label_column   = label_column
         self.dataset_config = configs[dataset_name]
+        self.transform      = transform
+        self.samples        = self.__collect_samples()
         print('{} sample available in {} set'.format(self.dataset_length, phase))
 
     def __len__(self):
@@ -35,12 +35,12 @@ class GeneralDataset(TorchDataset, IDataset):
         return index, img, clabel
 
     def __collect_samples(self):
-        dataset_info_path = osp.join(self.datset_config.outdir, self.datset_name, 'info.csv')
-        df = pd.read_csv(dataset_info_path)
+        dataset_info_path = osp.join(self.dataset_config.outdir, self.dataset_name, 'info.csv')
+        df = pd.read_csv(dataset_info_path, index_col='index')
         df = df[df['phase'] == self.phase]
         if self.label_column in df.columns:
             indices, paths, labels = df.index.values, df['path'], df[self.label_column]
             self.dataset_length = len(df)
-            return zip(indices, paths, labels)
+            return list(zip(indices, paths, labels))
         else:
             raise(f"label_column: {self.label_column} is not valid")
