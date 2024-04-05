@@ -60,14 +60,14 @@ class Trainer:
 
             t_loader_fold = DataLoader(
                 dataset=t_dataset_fold,
-                batch_size=self.train_loader.batch_size,
+                batch_size=self.batch_size,
                 shuffle=True,
                 collate_fn=self.collate_fn
             )
 
             v_loader_fold = DataLoader(
                 dataset=v_dataset_fold,
-                batch_size=self.train_loader.batch_size,
+                batch_size=self.batch_size,
                 shuffle=False,
                 collate_fn=self.collate_fn
             )
