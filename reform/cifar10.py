@@ -31,38 +31,16 @@ def write_images(
         img = Image.fromarray(data)
         img_path = osp.join(base_dir, label_names[label], file_name.decode("utf-8"))
         img.save(img_path, format="PNG")
-        data_entry = {'path': img_path, 'true_label': label, 'phase': data_phase}
+        data_entry = {'path': img_path, 'phase': data_phase, 'true_label': label}
         database_info = database_info._append(data_entry, ignore_index = True)
     return database_info
-
-
-def split_validation(train_data_dir: str, validation_data_dir: str, validation_split=0.2):
-    class_folders = os.listdir(train_data_dir)
-
-    for class_folder in class_folders:
-        validation_class_folder = osp.join(validation_data_dir, class_folder)
-        os.makedirs(validation_class_folder, exist_ok=True)
-
-    for class_folder in class_folders:
-        class_path = os.path.join(train_data_dir, class_folder)
-        validation_class_folder = osp.join(validation_data_dir, class_folder)
-
-        image_files = os.listdir(class_path)
-        num_validation_samples = int(len(image_files) * validation_split)
-        validation_samples = random.sample(
-            image_files, num_validation_samples)
-
-        for image in validation_samples:
-            src_path = os.path.join(class_path, image)
-            dest_path = os.path.join(validation_class_folder, image)
-            shutil.move(src_path, dest_path)
 
 
 def reform_datset(
         reform_dir: str,
         data_dir: str
 ):
-    columns = ['path', 'true_label', 'phase']
+    columns = ['path', 'phase', 'true_label']
     # Create an empty DataFrame
     df = pd.DataFrame(columns=columns)
 
@@ -123,4 +101,5 @@ def reform_datset(
                  count=num_cases_per_batch,
                  label_names=label_names, 
                  database_info=df)
-    df.to_csv(osp.join(reform_dir, 'info.csv'), index=False)
+    df.index.name = 'index'
+    df.to_csv(osp.join(reform_dir, 'info.csv'))
