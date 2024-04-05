@@ -31,12 +31,14 @@ def inject_noise_to_dataset(percentage, sparsity, dataset_name: str, outdir=None
                     trace=num_classes - noise_level,
                     frac_zero_noise_rates=sparsity, seed=43)
     dataset_info_path = osp.join(config.outdir, dataset_name, 'info.csv') 
-    df = pd.read_csv(dataset_info_path)
-    true_labels = df['true_label'] 
+    if not osp.exists(dataset_info_path):
+        raise Exception("Dataset info file does not exist. use download_dataset to download and create dataset info file")
+    df = pd.read_csv(dataset_info_path, index_col='index')
+    true_labels = df['true_label']
     noisy_labels = ng.generate_noisy_labels(true_labels=true_labels, noise_matrix=noise_matrix)
     noisy_label_col_name = f"noisy_label[np={percentage},ns={sparsity}]" 
     df[noisy_label_col_name] = noisy_labels
-    df.to_csv(dataset_info_path, index=False)
+    df.to_csv(dataset_info_path)
     
     path = osp.join(config.outdir, dataset_name, noisy_label_col_name + '.png')        
     fig, ax = plt.subplots()
