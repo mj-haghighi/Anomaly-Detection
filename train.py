@@ -49,7 +49,7 @@ def main(argv=None):
     logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, args.params, args.lr_scheduler, f'np={args.noise_percentage}', f'ns={args.noise_sparsity}', f'lr={args.lr}')
     log_configs(args, logdir)
 
-    if noise_percentage > 0.0001:
+    if args.noise_percentage > 0.0001:
         label_column=f"noisy_label[np={args.noise_percentage},ns={args.noise_sparsity}]"
     else:
         label_column="true_label"
