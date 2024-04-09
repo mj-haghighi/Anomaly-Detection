@@ -1,18 +1,14 @@
-import glob
 import torch
 import pandas as pd
 import os.path as osp
 from PIL import Image
 from enums import PHASE
-from enums import DATASETS
-from utils import to_categorical
 from configs import configs
-from data.set.dataset_interface import IDataset
 from torch.utils.data import Dataset as TorchDataset
 
 
-class GeneralDataset(TorchDataset, IDataset):
-    def __init__(self, dataset_name: str, label_column, phase, transform=None):
+class GeneralDataset(TorchDataset):
+    def __init__(self, dataset_name: str, label_column: str, phase: str, transform=None):
         self.phase          = phase
         self.dataset_name   = dataset_name
         self.label_column   = label_column
