@@ -1,8 +1,6 @@
 import timm
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision import models
-from torchvision.models import ResNet18_Weights
 
 class Xception(nn.Module):
     def __init__(self, num_classes, pretrain=True):
