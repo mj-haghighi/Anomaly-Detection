@@ -16,7 +16,7 @@ sys.path.append('.')
 from configs import configs
 
 
-NOISE_PERSENTAGE_OPTIONS = [0.03, 0.07, 0.13]
+NOISE_PERSENTAGE_OPTIONS = [0.0, 0.03, 0.07, 0.13]
 NOISE_SPARSITY_OPTIONS = [0.0, 0.2, 0.4, 0.6] 
 
 def inject_noise_to_dataset(percentage, sparsity, dataset_name: str, outdir=None):
@@ -65,7 +65,7 @@ def parse_args():
 def main(argv=None):
     args = parse_args()
     if args.all_noise_options:
-        noise_persentage_options = NOISE_PERSENTAGE_OPTIONS
+        noise_persentage_options = NOISE_PERSENTAGE_OPTIONS[1:]
         noise_sparsity_options = NOISE_SPARSITY_OPTIONS
     else:
         noise_persentage_options = [args.noise_percentage]
