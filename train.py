@@ -27,7 +27,7 @@ from utils.inject_noise_to_dataset import NOISE_PERSENTAGE_OPTIONS, NOISE_SPARSI
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     parser.add_argument('--dataset',            type=str,   default=None,               choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
-    parser.add_argument('--model',              type=str,   default='resnet18',         choices=['resnet18', 'resnet34'], help='choose model')
+    parser.add_argument('--model',              type=str,   default='resnet18',         choices=['resnet18', 'resnet34', 'xception'], help='choose model')
     parser.add_argument('--lr_scheduler',       type=str,   default='none',             choices=['none', 'cosine_annealingLR'], help='choose learning rate scheduler')
     parser.add_argument('--params',             type=str,   default=PARAMS.pretrain,    choices=[PARAMS.pretrain, PARAMS.kaiming_normal], help='choose params initialization')
     parser.add_argument('--epochs',             type=int,   default=100,        help='max number of epochs')
