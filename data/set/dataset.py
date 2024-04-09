@@ -5,7 +5,7 @@ from PIL import Image
 from enums import PHASE
 from configs import configs
 from torch.utils.data import Dataset as TorchDataset
-
+from utils import to_categorical
 
 class GeneralDataset(TorchDataset):
     def __init__(self, dataset_name: str, label_column: str, phase: str, transform=None):
