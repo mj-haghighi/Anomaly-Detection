@@ -140,6 +140,6 @@ class Trainer:
                         saver.look_for_save(metric_value=np.mean(validation_epoch_loss), epoch=epoch, fold=fold)
 
                 if self.lr_scheduler is not None:
-                    self.lr_scheduler.step()
+                    self.lr_scheduler.take_step(metrics=np.mean(validation_epoch_loss))
 
         self.logQ.put("EOF")
