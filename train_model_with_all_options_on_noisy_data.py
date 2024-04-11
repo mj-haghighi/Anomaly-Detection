@@ -2,7 +2,7 @@ import subprocess
 
 MODELS = ["resnet18", "resnet34", "xception"]
 DATASETS = ["cifar10"]#,"mnist", , "cifar100"]
-LR_SCHEDULER = ['none', 'cosine_annealingLR']
+LR_SCHEDULER = ['reduceLR', 'none', 'cosine_annealingLR']
 PARAMS = ['pretrain', 'kaiming_normal']
 OPTIMIZER_LR = [('adam', "0.0001"), ('sgd', "0.001"), ('rmsprobe', "0.0001"), ('sparseadam', "0.0001")]
 NOISE_PERSENTAGE_OPTIONS = ["0.0", "0.03", "0.07", "0.13"]
