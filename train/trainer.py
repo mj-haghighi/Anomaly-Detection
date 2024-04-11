@@ -5,6 +5,7 @@ from copy import copy
 from queue import Queue
 from typing import List
 from cProfile import label
+from data.set import Subset
 from enums.phase import PHASE
 from torch.utils.data import DataLoader
 from torch.nn.functional import softmax
@@ -28,6 +29,8 @@ class Trainer:
         num_epochs,
         lr_scheduler,
         train_dataset,
+        train_transform,
+        validation_transform,
         t_metrics: List[IMetric],
         v_metrics: List[IMetric],
         savers: List[IModelSaver],
@@ -46,6 +49,8 @@ class Trainer:
         self.num_epochs    = num_epochs
         self.lr_scheduler  = lr_scheduler
         self.train_dataset = train_dataset
+        self.train_transform = train_transform
+        self.validation_transform = validation_transform
 
     def start(self):
         print('training start ...')
@@ -55,8 +60,9 @@ class Trainer:
 
         for fold, (train_indices, val_indices) in enumerate(kf.split(self.train_dataset)):
             print(f"\nFold {fold + 1}/{self.num_folds}")
-            t_dataset_fold = torch.utils.data.Subset(self.train_dataset, train_indices)
-            v_dataset_fold = torch.utils.data.Subset(self.train_dataset, val_indices)
+
+            t_dataset_fold = Subset(self.train_dataset, train_indices, self.train_transform)
+            v_dataset_fold = Subset(self.train_dataset, val_indices, self.validation_transform)
 
             t_loader_fold = DataLoader(
                 dataset=t_dataset_fold,

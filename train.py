@@ -54,8 +54,8 @@ def main(argv=None):
     else:
         label_column="true_label"
 
-    train_taransfm, v_transfm = transforms[args.dataset]
-    train_dataset = GeneralDataset(dataset_name=args.dataset, label_column=label_column, phase=PHASE.train, transform=train_taransfm)
+    train_taransfm, validation_transfm = transforms[args.dataset]
+    train_dataset = GeneralDataset(dataset_name=args.dataset, label_column=label_column, phase=PHASE.train, transform=None)
 
     num_classes = len(dataset_configs[args.dataset].classes)
     if args.params == PARAMS.kaiming_normal:
@@ -92,6 +92,8 @@ def main(argv=None):
         num_epochs=args.epochs,
         t_metrics=level1_metrics,
         v_metrics=level1_metrics,
+        train_transform = train_taransfm,
+        validation_transform = validation_transfm,
         savers=savers,
         logQ=logQ
     )
