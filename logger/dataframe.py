@@ -19,7 +19,7 @@ class DataframeLogger(ILogger):
         self.opt_name = opt_name
         self.base_name = base_name
         self.path = osp.join(logdir, base_name)
-        self.column_names = ['sample', 'label', 'phase']
+        self.column_names = ['sample', 'label']
         if metric_columns:
             self.column_names.extend(metric_columns)
 
