@@ -21,7 +21,9 @@ from train.trainer import Trainer
 from data.transforms import transforms
 from logger.dataframe import DataframeLogger
 from torch.utils.data import DataLoader
+from data.set import Subset
 from utils.log_configs import log_configs
+from sklearn.model_selection import KFold
 from utils.inject_noise_to_dataset import NOISE_PERSENTAGE_OPTIONS, NOISE_SPARSITY_OPTIONS
 
 def parse_args():
@@ -54,58 +56,75 @@ def main(argv=None):
     else:
         label_column="true_label"
 
-    train_taransfm, validation_transfm = transforms[args.dataset]
+    train_transform, validation_transform = transforms[args.dataset]
     train_dataset = GeneralDataset(dataset_name=args.dataset, label_column=label_column, phase=PHASE.train, transform=None)
 
-    num_classes = len(dataset_configs[args.dataset].classes)
-    if args.params == PARAMS.kaiming_normal:
-        model = models[args.model](num_classes=num_classes, pretrain=False)
-        init_kaiming_normal(model)
-    else:
-        model = models[args.model](num_classes=num_classes, pretrain=True)
+    savers = [best_model.MINMetricValueModelSaver(savedir=logdir)]
 
-    optimizer = optim.load(name=args.optimizer, model=model, learning_rate=args.lr)
-    lr_scheduler = apply_lrscheduler(optimizer, args.lr_scheduler)
-    error = nn.CrossEntropyLoss(reduction='none')
+    kf = KFold(n_splits=args.folds, shuffle=True, random_state=43)
 
+    for fold, (train_indices, val_indices) in enumerate(kf.split(train_dataset)):
+        print(f"\nFold {fold + 1}/{args.folds}")
+        logQ = Queue()
+        level1_metrics = [Loss(), Proba()]
+        logger = DataframeLogger(
+            logdir=logdir, base_name=f"log.pd",
+            metric_columns=[metric.name for metric in level1_metrics],
+            model_name=args.model, opt_name=args.optimizer, logQ=logQ
+        )
 
-    savers = [best_model.MINMetricValueModelSaver(model, savedir=logdir)]
+        num_classes = len(dataset_configs[args.dataset].classes)
+        if args.params == PARAMS.kaiming_normal:
+            model = models[args.model](num_classes=num_classes, pretrain=False)
+            init_kaiming_normal(model)
+        else:
+            model = models[args.model](num_classes=num_classes, pretrain=True)
 
-    logQ = Queue()
-    level1_metrics = [Loss(), Proba()]
-    logger = DataframeLogger(
-        logdir=logdir, base_name=f"log.pd",
-        metric_columns=[metric.name for metric in level1_metrics],
-        model_name=args.model, opt_name=args.optimizer, logQ=logQ
-    )
+        optimizer = optim.load(name=args.optimizer, model=model, learning_rate=args.lr)
+        lr_scheduler = apply_lrscheduler(optimizer, args.lr_scheduler)
+        error = nn.CrossEntropyLoss(reduction='none')
 
-    trainer = Trainer(
-        model=model,
-        error=error,
-        device=args.device,
-        batch_size=args.batch_size,
-        collate_fn=collate_fns[args.dataset],
-        train_dataset=train_dataset,
-        num_folds=args.folds,
-        optimizer=optimizer,
-        lr_scheduler=lr_scheduler,
-        num_epochs=args.epochs,
-        t_metrics=level1_metrics,
-        v_metrics=level1_metrics,
-        train_transform = train_taransfm,
-        validation_transform = validation_transfm,
-        savers=savers,
-        logQ=logQ
-    )
+        train_dataset_fold = Subset(train_dataset, train_indices, train_transform)
+        validation_dataset_fold = Subset(train_dataset, val_indices, validation_transform)
 
-    training_thread = Thread(target=trainer.start)
-    log_thread = Thread(target=logger.start)
-    
-    training_thread.start()
-    log_thread.start()
+        train_loader_fold = DataLoader(
+            dataset=train_dataset_fold,
+            batch_size=args.batch_size,
+            shuffle=True,
+            collate_fn=collate_fns[args.dataset]
+        )
 
-    training_thread.join()
-    log_thread.join()
+        validation_loader_fold = DataLoader(
+            dataset=validation_dataset_fold,
+            batch_size=args.batch_size,
+            shuffle=False,
+            collate_fn=collate_fns[args.dataset]
+        )
+        trainer = Trainer(
+            model=model,
+            error=error,
+            device=args.device,
+            train_dataloader=train_loader_fold,
+            validation_dataloader=validation_loader_fold,
+            num_folds=args.folds,
+            optimizer=optimizer,
+            lr_scheduler=lr_scheduler,
+            num_epochs=args.epochs,
+            t_metrics=level1_metrics,
+            v_metrics=level1_metrics,
+            savers=savers,
+            logQ=logQ,
+            fold=fold
+        )
+
+        training_thread = Thread(target=trainer.start)
+        log_thread = Thread(target=logger.start)
+        
+        training_thread.start()
+        log_thread.start()
+
+        training_thread.join()
+        log_thread.join()
 
 if __name__ == "__main__":
     main()
