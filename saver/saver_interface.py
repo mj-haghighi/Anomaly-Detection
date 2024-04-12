@@ -6,16 +6,15 @@ from train.dynamics import Dynamics
 from metric.metric_interface import IMetric
 
 class IModelSaver:
-    def __init__(self, model: nn.Module, savedir: str, helper_in_compare = None, lock_on: IMetric = None) -> None:
-        self.model = model
+    def __init__(self, savedir: str, helper_in_compare = None, lock_on: IMetric = None) -> None:
         self.helper = (lambda x: x) if helper_in_compare is None else helper_in_compare
         self.locked_metric = lock_on
         self.savedir = savedir
         self.last_model = None
-    def look_for_save(self, metric_value: float, epoch: int, fold: int = None):
+    def look_for_save(self, metric_value: float, epoch: int, model: nn.Module, fold: int = None, ):
         raise Exception("This method is not implemented")            
 
-    def save_model(self, epoch: int, fold: int = None):
+    def save_model(self, epoch: int, model: nn.Module, fold: int = None):
         path = self.savedir
 
         if epoch == 0:
@@ -31,5 +30,5 @@ class IModelSaver:
         
         if self.last_model is not None and osp.exists(self.last_model):
             os.remove(self.last_model)
-        torch.save(self.model.state_dict(), path)
+        torch.save(model.state_dict(), path)
         self.last_model = path
