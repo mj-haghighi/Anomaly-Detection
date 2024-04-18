@@ -1,25 +1,22 @@
+import os
 import time
 import torch
-import os.path as osp
-import argparse
-import model as predefined_models
-from saver import best_model
-from logger.dataframe import DataframeLogger
-import torch.nn as nn
-from enums import PHASE
-from data.set import GeneralDataset
-import optimizer as predifined_optimizers
-from torch import multiprocessing
-from multiprocessing import Queue
-from sklearn.model_selection import KFold
-from data.set import Subset
-from torch.nn.functional import softmax
-from lrscheduler import get_lrscheduler
 import copy
 import numpy as np
-from data.transforms import transforms
+import torch.nn as nn
+import optimizer as predifined_optimizers
+import model as predefined_models
+from utils.verbose import verbose
+from saver import best_model
+from enums import PHASE, VERBOSE
+from data.set import Subset
+from data.set import GeneralDataset
+from lrscheduler import get_lrscheduler
 from metric.level1 import Loss, Proba
-from utils.inject_noise_to_dataset import NOISE_PERSENTAGE_OPTIONS, NOISE_SPARSITY_OPTIONS
+from data.transforms import transforms
+from logger.dataframe import DataframeLogger
+from torch.nn.functional import softmax
+from sklearn.model_selection import KFold
 
 metrics = [Loss(), Proba()]
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
