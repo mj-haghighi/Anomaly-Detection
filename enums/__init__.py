@@ -6,3 +6,4 @@ from .phase import PHASE
 from .ext import EXT
 from .params import PARAMS
 from .lr_scheduler import LR_SCHEDULER
+from .log_level import VERBOSE
