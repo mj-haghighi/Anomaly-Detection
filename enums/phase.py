@@ -2,6 +2,6 @@ from cgi import test
 
 
 class PHASE:
-    train='train'
-    validation='validation'
-    test='test'
+    TRAIN='train'
+    VALIDATION='validation'
+    TEST='test'
