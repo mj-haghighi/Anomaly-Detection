@@ -17,6 +17,7 @@ from data.transforms import transforms
 from logger.dataframe import DataframeLogger
 from torch.nn.functional import softmax
 from sklearn.model_selection import KFold
+from saver.last_model import LastEpochModelSaver
 
 metrics = [Loss(), Proba()]
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -108,6 +109,7 @@ def train_fold(num_folds, num_epochs, fold, model_name, dataset_name, optimizer_
     validationloader = torch.utils.data.DataLoader(validation_subset, batch_size=64, shuffle=False)
 
     model_savers = [best_model.MINMetricValueModelSaver(savedir=logdir)]
+    last_epoch_model_saver = LastEpochModelSaver(savedir=logdir)
 
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
@@ -116,9 +118,9 @@ def train_fold(num_folds, num_epochs, fold, model_name, dataset_name, optimizer_
         lr_scheduler.take_step(metrics=val_loss)
         for saver in model_savers:
             saver.look_for_save(metric_value=val_loss, epoch=epoch, fold=fold, model=model)
-        
         verbose('Fold {} Epoch: {}  TrainLoss: {:.2f} ValLoss: {:.2f} Time: {} s'.format(fold, epoch, train_loss, val_loss, time.time() - epoch_start_time), VERBOSE.LEVEL_2)
 
+    last_epoch_model_saver.save(epoch=num_epochs-1, fold=fold, model=model)
     verbose('Model {} Fold {} Time: {} s'.format(model_name, fold, time.time() - fold_start_time), VERBOSE.LEVEL_1)
     queue.put(None)
 
