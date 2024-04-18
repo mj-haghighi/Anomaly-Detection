@@ -6,18 +6,12 @@ from metric.metric_interface import IMetric
 
 
 class ILogger:
-    def __init__(self, logQ: Queue):
-        self.logQ = logQ
-
     def log(self, fold: int, epoch: int, iteration: int, samples: List[str], phase: str, labels: List[str], metrics: List[IMetric]):
         raise Exception("This is not implemented")
 
-    def start(self):
+    def start(self, logQ):
         while True:
-            time.sleep(0.05)
-            if not self.logQ.empty():
-                log_item = self.logQ.get()
-                if log_item == "EOF":
-                    break
-                self.log(**log_item)
-                            
+            log_item = logQ.get()
+            if log_item == None or log_item == "EOF":
+                return
+            self.log(**log_item)

@@ -12,8 +12,7 @@ from metric.metric_interface import IMetric
 
 
 class DataframeLogger(ILogger):
-    def __init__(self, logdir, base_name="log.pd", logQ: Queue = None, metric_columns=None, model_name: str = None, opt_name: str = None) -> None:
-        self.logQ = logQ
+    def __init__(self, logdir, base_name="log.pd", metric_columns=None, model_name: str = None, opt_name: str = None) -> None:
         self.logdir = logdir
         self.model_name = model_name
         self.opt_name = opt_name
