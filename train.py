@@ -1,37 +1,23 @@
-
-import argparse
+import time
+import torch
 import os.path as osp
+import argparse
 import torch.nn as nn
-import optimizer as optim
-from queue import Queue
-from enums import PHASE
-from enums import PARAMS
-from model import models
-from saver import best_model
-from utils import download_dataset
-from configs import configs as dataset_configs
-from datetime import datetime
-from data.set import GeneralDataset
-from threading import Thread
-from data.loader import collate_fns
-from lrscheduler import apply_lrscheduler
-from utils.params import init_kaiming_normal
+from torch import multiprocessing
+from multiprocessing import Queue
 from metric.level1 import Loss, Proba
-from train.trainer import Trainer
-from data.transforms import transforms
-from logger.dataframe import DataframeLogger
-from torch.utils.data import DataLoader
-from data.set import Subset
-from utils.log_configs import log_configs
-from sklearn.model_selection import KFold
 from utils.inject_noise_to_dataset import NOISE_PERSENTAGE_OPTIONS, NOISE_SPARSITY_OPTIONS
+from train.trainer import train_fold, logger
+
+if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn', force=True)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     parser.add_argument('--dataset',            type=str,   default=None,               choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
     parser.add_argument('--model',              type=str,   default='resnet18',         choices=['resnet18', 'resnet34', 'xception'], help='choose model')
     parser.add_argument('--lr_scheduler',       type=str,   default='none',             choices=['none', 'cosine_annealingLR', 'reduceLR'], help='choose learning rate scheduler')
-    parser.add_argument('--params',             type=str,   default=PARAMS.pretrain,    choices=[PARAMS.pretrain, PARAMS.kaiming_normal], help='choose params initialization')
+    parser.add_argument('--params',             type=str,   default='pretrain',    choices=['pretrain', 'kaiming_normal'], help='choose params initialization')
     parser.add_argument('--epochs',             type=int,   default=100,        help='max number of epochs')
     parser.add_argument('--batch_size',         type=int,   default=64,         help='batch size')
     parser.add_argument('--folds',              type=int,   default=3,          help='number of folds in cross validation')
@@ -45,86 +31,60 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+# queue = multiprocessing.Queue()
+queue_s = [multiprocessing.Queue() for i in range(3)]
 
-def main(argv=None):
+
+# Use multiprocessing to train each fold in parallel
+if __name__ == '__main__':
     args = parse_args()
-    logdir = osp.join(args.logdir, args.dataset, args.model, args.optimizer, args.params, args.lr_scheduler, f'np={args.noise_percentage}', f'ns={args.noise_sparsity}', f'lr={args.lr}')
-    log_configs(args, logdir)
+    logdir = osp.join(
+        args.logdir,
+        args.dataset,
+        args.model,
+        args.optimizer,
+        args.params,
+        args.lr_scheduler,
+        f'np={args.noise_percentage}',
+        f'ns={args.noise_sparsity}',
+        f'lr={args.lr}')
 
-    if args.noise_percentage > 0.0001:
-        label_column=f"noisy_label[np={args.noise_percentage},ns={args.noise_sparsity}]"
-    else:
-        label_column="true_label"
+    processes = []
+    for fold in range(args.folds):
+        process_args = {
+            'num_folds': args.folds,
+            'num_epochs': args.epochs,
+            'fold': fold,
+            'model_name': args.model,
+            'dataset_name': args.dataset,
+            'optimizer_name': args.optimizer,
+            'learning_rate': args.lr,
+            'lr_scheduler_name': args.lr_scheduler,
+            'num_classes': 10,
+            'logdir': logdir,
+            'pretrain': args.params=='pretrain',
+            'queue': queue_s[fold],
+            'label_column': f"noisy_label[np={args.noise_percentage},ns={args.noise_sparsity}]" if args.noise_percentage > 0.001 else 'true_label'
+        }
+        p = multiprocessing.Process(target=train_fold, kwargs=process_args)
+        processes.append(p)
+        p.start()
+    
+    log_processes = []
+    for fold in range(args.folds):
+        log_process_args = {
+            'queue': queue_s[fold],
+            'logdir': logdir,
+            'model_name': args.model ,
+            'optimizer_name': args.optimizer
+        }
+        logp = multiprocessing.Process(target=logger, kwargs=log_process_args)
+        log_processes.append(logp)
+        logp.start()
 
-    train_transform, validation_transform = transforms[args.dataset]
-    train_dataset = GeneralDataset(dataset_name=args.dataset, label_column=label_column, phase=PHASE.train, transform=None)
+    for p in processes:
+        p.join()
 
-    savers = [best_model.MINMetricValueModelSaver(savedir=logdir)]
-
-    kf = KFold(n_splits=args.folds, shuffle=True, random_state=43)
-
-    for fold, (train_indices, val_indices) in enumerate(kf.split(train_dataset)):
-        print(f"\nFold {fold + 1}/{args.folds}")
-        logQ = Queue()
-        level1_metrics = [Loss(), Proba()]
-        logger = DataframeLogger(
-            logdir=logdir, base_name=f"log.pd",
-            metric_columns=[metric.name for metric in level1_metrics],
-            model_name=args.model, opt_name=args.optimizer, logQ=logQ
-        )
-
-        num_classes = len(dataset_configs[args.dataset].classes)
-        if args.params == PARAMS.kaiming_normal:
-            model = models[args.model](num_classes=num_classes, pretrain=False)
-            init_kaiming_normal(model)
-        else:
-            model = models[args.model](num_classes=num_classes, pretrain=True)
-
-        optimizer = optim.load(name=args.optimizer, model=model, learning_rate=args.lr)
-        lr_scheduler = apply_lrscheduler(optimizer, args.lr_scheduler)
-        error = nn.CrossEntropyLoss(reduction='none')
-
-        train_dataset_fold = Subset(train_dataset, train_indices, train_transform)
-        validation_dataset_fold = Subset(train_dataset, val_indices, validation_transform)
-
-        train_loader_fold = DataLoader(
-            dataset=train_dataset_fold,
-            batch_size=args.batch_size,
-            shuffle=True,
-            collate_fn=collate_fns[args.dataset]
-        )
-
-        validation_loader_fold = DataLoader(
-            dataset=validation_dataset_fold,
-            batch_size=args.batch_size,
-            shuffle=False,
-            collate_fn=collate_fns[args.dataset]
-        )
-        trainer = Trainer(
-            model=model,
-            error=error,
-            device=args.device,
-            train_dataloader=train_loader_fold,
-            validation_dataloader=validation_loader_fold,
-            num_folds=args.folds,
-            optimizer=optimizer,
-            lr_scheduler=lr_scheduler,
-            num_epochs=args.epochs,
-            t_metrics=level1_metrics,
-            v_metrics=level1_metrics,
-            savers=savers,
-            logQ=logQ,
-            fold=fold
-        )
-
-        training_thread = Thread(target=trainer.start)
-        log_thread = Thread(target=logger.start)
-        
-        training_thread.start()
-        log_thread.start()
-
-        training_thread.join()
-        log_thread.join()
-
-if __name__ == "__main__":
-    main()
+    for p in log_processes:
+        p.join()
+    
