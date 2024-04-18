@@ -20,7 +20,7 @@ class ReduceLROnPlateau(TorchReduceLROnPlateau):
 
 
 
-def apply_lrscheduler(optimizer, scheduler: str):
+def get_lrscheduler(optimizer, scheduler: str):
     if scheduler == LR_SCHEDULER.cosine_annealingLR:
         return CosineAnnealingLR(optimizer=optimizer, T_max=20)
     if scheduler == LR_SCHEDULER.none:
