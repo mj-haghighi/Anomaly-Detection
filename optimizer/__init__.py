@@ -4,7 +4,7 @@ from torch import optim
 from enums import OPTIMIZER
 
 
-def load(name: str = "adam", model: Module = None, learning_rate: float = 0.0001):
+def get(name: str = "adam", model: Module = None, learning_rate: float = 0.0001):
     if OPTIMIZER.adam == name:
         return optim.Adam(model.parameters(), lr=learning_rate)
     
