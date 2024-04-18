@@ -34,8 +34,9 @@ def train_one_epoch(fold, epoch, model, dataloader, optimizer, queue):
     epoch_loss = []
     iteration = 0 
     for idx, data, labels in dataloader:
+        time.sleep(0.005)
         optimizer.zero_grad()
-        
+
         data, labels = data.to(device), labels.to(device)
         prediction_values = model(data)  # (B, C)
         prediction_probs = softmax(prediction_values, dim=1)  # (B, C)
