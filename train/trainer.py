@@ -119,10 +119,10 @@ def train_fold(num_folds, num_epochs, fold, model_name, dataset_name, optimizer_
             lr_scheduler.take_step(metrics=val_loss)
         for saver in model_savers:
             saver.look_for_save(metric_value=val_loss, epoch=epoch, fold=fold, model=model)
-        verbose('Fold {} Epoch: {}  TrainLoss: {:.2f} ValLoss: {:.2f} Time: {} s'.format(fold, epoch, train_loss, val_loss, time.time() - epoch_start_time), VERBOSE.LEVEL_2)
+        verbose('Fold {} Epoch: {}  TrainLoss: {:.2f} ValLoss: {:.2f} Time: {:.2f} s'.format(fold, epoch, train_loss, val_loss, time.time() - epoch_start_time), VERBOSE.LEVEL_2)
 
     last_epoch_model_saver.save(epoch=num_epochs-1, fold=fold, model=model)
-    verbose('Model {} Fold {} Time: {} s'.format(model_name, fold, time.time() - fold_start_time), VERBOSE.LEVEL_1)
+    verbose('Model {} Fold {} Time: {:.2f} s'.format(model_name, fold, time.time() - fold_start_time), VERBOSE.LEVEL_1)
     queue.put(None)
 
 def logger(logdir, model_name, optimizer_name, queue):
