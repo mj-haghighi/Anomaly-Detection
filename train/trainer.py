@@ -115,7 +115,8 @@ def train_fold(num_folds, num_epochs, fold, model_name, dataset_name, optimizer_
         epoch_start_time = time.time()
         train_loss = train_one_epoch(fold, epoch, model, trainloader, optimizer, queue)
         val_loss = validate_one_epoch(fold, epoch, model, validationloader, queue)
-        lr_scheduler.take_step(metrics=val_loss)
+        if lr_scheduler:
+            lr_scheduler.take_step(metrics=val_loss)
         for saver in model_savers:
             saver.look_for_save(metric_value=val_loss, epoch=epoch, fold=fold, model=model)
         verbose('Fold {} Epoch: {}  TrainLoss: {:.2f} ValLoss: {:.2f} Time: {} s'.format(fold, epoch, train_loss, val_loss, time.time() - epoch_start_time), VERBOSE.LEVEL_2)
