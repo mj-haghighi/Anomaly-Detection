@@ -50,7 +50,7 @@ def train_one_epoch(fold, epoch, model, dataloader, optimizer, queue):
         metrics_result = calculate_metrics(prediction_probs, labels, loss_each)
         queue.put({
                 "fold": fold, "epoch": epoch, "iteration": iteration,
-                "samples": copy.deepcopy(idx), "phase": PHASE.TRAIN,
+                "samples": copy.deepcopy(idx.detach().cpu().numpy()), "phase": PHASE.TRAIN,
                 "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                 "metrics": metrics_result
                 })
@@ -79,7 +79,7 @@ def validate_one_epoch(fold, epoch, model, dataloader, queue):
                     time.sleep(0.01)
             queue.put({
                 "fold": fold, "epoch": epoch, "iteration": iteration,
-                "samples": copy.deepcopy(idx), "phase": PHASE.VALIDATION,
+                "samples": copy.deepcopy(idx.detach().cpu().numpy()), "phase": PHASE.VALIDATION,
                 "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                 "metrics": metrics_result
             })
