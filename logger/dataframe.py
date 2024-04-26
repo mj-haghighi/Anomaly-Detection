@@ -12,10 +12,8 @@ from metric.metric_interface import IMetric
 
 
 class DataframeLogger(ILogger):
-    def __init__(self, logdir, base_name="log.pd", metric_columns=None, model_name: str = None, opt_name: str = None) -> None:
+    def __init__(self, logdir, base_name="log.pd", metric_columns=None) -> None:
         self.logdir = logdir
-        self.model_name = model_name
-        self.opt_name = opt_name
         self.base_name = base_name
         self.path = osp.join(logdir, base_name)
         self.column_names = ['sample', 'label']
