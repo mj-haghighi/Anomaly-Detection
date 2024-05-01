@@ -6,7 +6,6 @@ import os.path as osp
 sys.path.append('.')
 
 from configs import configs
-from enums.ext import EXT
 from utils.extract import extract
 
 def download_dataset(dataset_name: str, outdir=None):

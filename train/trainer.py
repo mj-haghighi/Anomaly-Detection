@@ -3,25 +3,28 @@ import time
 import torch
 import copy
 import numpy as np
+import model as predefined_models
 import pandas as pd
 import torch.nn as nn
 import optimizer as predifined_optimizers
-import model as predefined_models
-from utils.verbose import verbose
 from saver import best_model
-from enums import PHASE, VERBOSE
+from enums import PHASE, VERBOSE 
+from enums import TRANSFORM_LEVEL
 from configs import configs
-from configs.general import EXPERIMENT_INFO_PATH, FILTERING_EXPERIMENT_INFO_PATH, FILTERING_EXPERIMENT_BASE_DIR, EXPERIMENT_BASE_DIR, EXPERIMENT_COLS
 from data.set import Subset
 from data.set import GeneralDataset
 from lrscheduler import get_lrscheduler
+from utils.verbose import verbose
 from metric.level1 import Loss, Proba
-from data.transforms import transforms
+from configs.general import EXPERIMENT_COLS
+from configs.general import EXPERIMENT_BASE_DIR
+from configs.general import EXPERIMENT_INFO_PATH
+from data.transforms import get_transforms
 from logger.dataframe import DataframeLogger
-from torch.nn.functional import softmax
-from sklearn.model_selection import KFold
 from saver.last_model import LastEpochModelSaver
+from torch.nn.functional import softmax
 from data.filtering_policy import get_data_filtering_policy 
+from sklearn.model_selection import KFold
 
 metrics = [Loss(), Proba()]
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -130,8 +133,8 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     kf = KFold(n_splits=num_folds, shuffle=True, random_state=43)
     folding = list(kf.split(dataset))
     train_subset_indices, validation_subset_indices = folding[fold]
-    
-    train_transform, validation_transform = transforms[dataset_name]
+
+    train_transform, validation_transform = get_transforms(dataset_name=dataset_name, transform_level=TRANSFORM_LEVEL.DEFAULT)
     train_subset = Subset(dataset, train_subset_indices, transform=train_transform)
     validation_subset = Subset(dataset, validation_subset_indices, transform=validation_transform)
 

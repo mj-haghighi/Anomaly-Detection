@@ -20,11 +20,11 @@ def __extract_tarxz(path, to):
     tar.close()
 
 def extract(path, to, type:str):
-    if type == EXT.zip:
+    if type == EXT.ZIP:
         __extract_zip(path, to)
-    elif type == EXT.targz:
+    elif type == EXT.TARGZ:
         __extract_targz(path, to)
-    elif type == EXT.tarxz:
+    elif type == EXT.TARXZ:
         __extract_tarxz(path, to)
     else:
         raise Exception("File type: {} not support".format(type))

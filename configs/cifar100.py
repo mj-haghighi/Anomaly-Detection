@@ -4,7 +4,7 @@ from configs.ConfigInterface import IConfig
 
 class Config(IConfig):
     download_link = "https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
-    filetype = EXT.targz
+    filetype = EXT.TARGZ
     datatype = 'todo'
     classes = 'todo'
     mean = 'todo'

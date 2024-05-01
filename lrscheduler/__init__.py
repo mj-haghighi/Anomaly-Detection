@@ -1,4 +1,3 @@
-import torch
 from enums import LR_SCHEDULER
 from torch.optim.lr_scheduler import CosineAnnealingLR as TorchCosineAnnealingLR
 from torch.optim.lr_scheduler import ReduceLROnPlateau as TorchReduceLROnPlateau
@@ -21,9 +20,9 @@ class ReduceLROnPlateau(TorchReduceLROnPlateau):
 
 
 def get_lrscheduler(optimizer, scheduler: str):
-    if scheduler == LR_SCHEDULER.cosine_annealingLR:
+    if scheduler == LR_SCHEDULER.COSINE_ANNEALINGLR:
         return CosineAnnealingLR(optimizer=optimizer, T_max=20)
-    if scheduler == LR_SCHEDULER.none:
+    if scheduler == LR_SCHEDULER.NONE:
         return None
-    if scheduler == LR_SCHEDULER.reduceLR:
+    if scheduler == LR_SCHEDULER.REDUCELR:
         return ReduceLROnPlateau(optimizer=optimizer, mode='min', factor=0.25, threshold=1e-7, patience=10)

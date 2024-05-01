@@ -8,9 +8,9 @@ from .Resnet34 import Resnet34
 from .Xception import Xception
 
 models: Dict[str, nn.Module] = {
-    MODELS.resnet18: Resnet18,
-    MODELS.resnet34: Resnet34,
-    MODELS.xception: Xception
+    MODELS.RESNET18: Resnet18,
+    MODELS.RESNET34: Resnet34,
+    MODELS.XCEPTION: Xception
 }
 
 

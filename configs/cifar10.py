@@ -10,8 +10,8 @@ from configs.ConfigInterface import IConfig
 
 class Config(IConfig):
     download_link = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
-    filetype = EXT.targz
-    datatype = EXT.png
+    filetype = EXT.TARGZ
+    datatype = EXT.PNG
     raw_data_folder = 'cifar-10-batches-py'
     classes = ['airplane', 'automobile', 'bird', 'cat',
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
