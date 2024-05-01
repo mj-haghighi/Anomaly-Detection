@@ -95,9 +95,7 @@ def validate_one_epoch(fold, epoch, model, dataloader, queue):
 
 def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=None, experiment_dir=None):
     data_filtering_policy = None
-    base_dir = EXPERIMENT_BASE_DIR
     if filtering_policy is not None:
-        filtering_experiments = pd.read_csv(FILTERING_EXPERIMENT_INFO_PATH, index_col='index')
         data_filtering_policy = get_data_filtering_policy(
             policy_name=filtering_policy,
             metric_name=based_on,
