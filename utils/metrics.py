@@ -11,3 +11,10 @@ def std_agg(values):
         values_powered_by_2 = value ** 2
         z.append(values_powered_by_2)
     return np.sqrt(np.mean(z))
+
+def diff_two_max(prob_array):
+    sorted_probs = sorted(prob_array, reverse=True)
+    return sorted_probs[0] - sorted_probs[1] if len(sorted_probs) >= 2 else np.nan
+
+def find_max_proba(prob_array):
+    return np.max(prob_array)
