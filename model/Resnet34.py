@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 from torchvision.models import ResNet34_Weights
+from utils.model import remove_prefix_from_state_dict
 
 
 
@@ -18,6 +19,7 @@ class Resnet34(nn.Module):
         self.resnet34.fc = nn.Linear(in_features, num_classes)
 
     def load_state_dict(self, state_dict):
+        state_dict = remove_prefix_from_state_dict(state_dict, prefix_to_remove='resnet34.')
         self.resnet34.load_state_dict(state_dict)
 
     def forward(self, x):

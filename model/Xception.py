@@ -1,6 +1,7 @@
 import timm
 import torch.nn as nn
 import torch.nn.functional as F
+from utils.model import remove_prefix_from_state_dict
 
 class Xception(nn.Module):
     def __init__(self, num_classes, pretrain=True):
@@ -13,6 +14,7 @@ class Xception(nn.Module):
         # Modify the final classification layer for the number of classes in CIFAR-10
 
     def load_state_dict(self, state_dict):
+        state_dict = remove_prefix_from_state_dict(state_dict, prefix_to_remove='xception.')
         self.xception.load_state_dict(state_dict)
 
     def forward(self, x):
