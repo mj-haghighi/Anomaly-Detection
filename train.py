@@ -24,7 +24,7 @@ def parse_args():
     return args
 
 # queue = multiprocessing.Queue()
-queue_s = [multiprocessing.Queue() for i in range(3)]
+queue_s = [multiprocessing.Queue(30) for i in range(3)]
 
 
 # Use multiprocessing to train each fold in parallel
