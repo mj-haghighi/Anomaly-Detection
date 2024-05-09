@@ -112,6 +112,7 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     num_folds         = target_experiment['folds']
     num_epochs        = target_experiment['epochs']
     model_name        = target_experiment['model']
+    transform_level   = target_experiment['transform']
     dataset_name      = target_experiment['dataset']
     optimizer_name    = target_experiment['optim']
     learning_rate     = float(target_experiment['lr'][3:])
@@ -134,7 +135,7 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     folding = list(kf.split(dataset))
     train_subset_indices, validation_subset_indices = folding[fold]
 
-    train_transform, validation_transform = get_transforms(dataset_name=dataset_name, transform_level=TRANSFORM_LEVEL.DEFAULT)
+    train_transform, validation_transform = get_transforms(dataset_name=dataset_name, transform_level=transform_level)
     train_subset = Subset(dataset, train_subset_indices, transform=train_transform)
     validation_subset = Subset(dataset, validation_subset_indices, transform=validation_transform)
 
