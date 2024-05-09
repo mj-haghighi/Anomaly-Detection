@@ -1,8 +1,3 @@
-import os
-import glob
-import pickle
-import os.path as osp
-
 from reform import reform_cifar10
 from enums import EXT
 from configs.ConfigInterface import IConfig
@@ -17,7 +12,7 @@ class Config(IConfig):
                'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
     labels = list(range(10))
     mean = [0.49139968, 0.48215827, 0.44653124]
-    std = [0.24703233, 0.24348505, 0.26158768]
+    std = [0.2023, 0.1994, 0.2010]
     trainset = 'train/'
     testset = 'test/'
     validationset = 'validation/'
