@@ -1,7 +1,7 @@
 from enums import DATASETS
 from enums import TRANSFORM_LEVEL
-import mnist
-import cifar10
+from . import mnist
+from . import cifar10
 
 default_transforms={
     DATASETS.MNIST: (mnist.default_train_transform, mnist.default_validation_transform),
