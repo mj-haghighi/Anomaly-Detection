@@ -14,10 +14,10 @@ models: Dict[str, nn.Module] = {
 }
 
 
-def get(name: str, num_classes: int, pretrain: bool = False):
+def get(name: str, num_classes: int, pretrain: bool = False, dropout: float = 0.):
     if pretrain:
-        return models[name](num_classes=num_classes, pretrain=True)
+        return models[name](num_classes=num_classes, pretrain=True, dropout=dropout)
     else:
-        model = models[name](num_classes=num_classes, pretrain=False)
+        model = models[name](num_classes=num_classes, pretrain=False, dropout=dropout)
         init_kaiming_normal(model)
         return model

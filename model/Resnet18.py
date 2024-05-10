@@ -5,7 +5,7 @@ from torchvision.models import ResNet18_Weights
 from utils.model import remove_prefix_from_state_dict
 
 class Resnet18(nn.Module):
-    def __init__(self, num_classes, pretrain=True):
+    def __init__(self, num_classes, pretrain=True, dropout=0.):
         super(Resnet18, self).__init__()
         if pretrain:
             self.resnet18 = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
@@ -14,7 +14,13 @@ class Resnet18(nn.Module):
 
         # Modify the final classification layer for the number of classes in CIFAR-10
         in_features = self.resnet18.fc.in_features
-        self.resnet18.fc = nn.Linear(in_features, num_classes)
+        if dropout > 0.0001:
+            self.resnet18.fc = nn.Sequential(
+                nn.Dropout(p=dropout),
+                nn.Linear(in_features, num_classes, bias=True)
+            )
+        else:
+            self.resnet18.fc = nn.Linear(in_features, num_classes, bias=True)
 
     def load_state_dict(self, state_dict):
         state_dict = remove_prefix_from_state_dict(state_dict, prefix_to_remove='resnet18.')

@@ -113,6 +113,7 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     num_epochs        = target_experiment['epochs']
     model_name        = target_experiment['model']
     transform_level   = target_experiment['transform']
+    dropout           = float(target_experiment['dropout'][4:])
     dataset_name      = target_experiment['dataset']
     optimizer_name    = target_experiment['optim']
     learning_rate     = float(target_experiment['lr'][3:])
@@ -122,7 +123,7 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     lr_scheduler_name = target_experiment['lr_scheduler']
 
     fold_start_time = time.time()
-    model = predefined_models.get(name=model_name, num_classes=num_classes, pretrain=pretrain)
+    model = predefined_models.get(name=model_name, num_classes=num_classes, pretrain=pretrain, dropout=dropout)
     model.to(device)
     optimizer = predifined_optimizers.get(name=optimizer_name, model=model, learning_rate=learning_rate)
     lr_scheduler = get_lrscheduler(optimizer, lr_scheduler_name)
