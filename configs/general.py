@@ -17,7 +17,7 @@ FOLDS                           = 3
 DEVICE                          = 'cuda:0'
 
 
-BASE_DIR = "/home/vision/Repo/cleanset/logs2"
+BASE_DIR = "/home/vision/Repo/cleanset/logs"
 EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "basic_experiments")
 FILTERING_EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "filtering_experiments")
 EXPERIMENT_COLS = ["dataset", "model", "dropout", "optim", "lr", "lr_scheduler", "init", "transform", "np", "ns"]
