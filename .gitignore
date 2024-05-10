@@ -4,3 +4,5 @@ env/*
 __pycache__/*
 dataset/*
 logs/*
+archived\ logs/*
+!logs/experiments.csv
