@@ -19,7 +19,7 @@ class EqualToNP(FilteringPolicy):
         assert osp.exists(experiments_info_path), f"Experiments info not exist in path {experiments_info_path}"
         self.experiments = pd.read_csv(experiments_info_path, index_col='index')
         
-        target_experiment = self.experiments.iloc[experiment_number]
+        target_experiment = self.experiments.loc[experiment_number]
         self.target_np = float(target_experiment['np'][3:])
         
         experiment_dir = osp.join(experiment_base_dir, *[str(target_experiment[col]) for col in experiments_dataset_columns])

@@ -1,13 +1,7 @@
-import time
-import torch
 import os.path as osp
 import pandas as pd
 import argparse
-import torch.nn as nn
 from torch import multiprocessing
-from multiprocessing import Queue
-from metric.level1 import Loss, Proba
-from utils.inject_noise_to_dataset import NOISE_PERSENTAGE_OPTIONS, NOISE_SPARSITY_OPTIONS
 from train.trainer import train_fold, logger
 from configs.general import FILTERING_EXPERIMENT_BASE_DIR, EXPERIMENT_BASE_DIR, EXPERIMENT_COLS, FILTERING_EXPERIMENT_INFO_PATH, EXPERIMENT_INFO_PATH
 
@@ -17,8 +11,8 @@ if __name__ == '__main__':
 def parse_args():
     parser = argparse.ArgumentParser(description='start training on dataet')
     
-    parser.add_argument('--experiment_number',           type=int, help='experiment index in experiments dataset')
-    parser.add_argument('--filtering_experiment_number', type=int, help='experiment index in filtering experiments dataset')
+    parser.add_argument('--experiment_number',           type=str, help='experiment index in experiments dataset')
+    parser.add_argument('--filtering_experiment_number', type=str, help='experiment index in filtering experiments dataset')
 
     args = parser.parse_args()
     return args
@@ -35,18 +29,18 @@ if __name__ == '__main__':
     based_on = None
     if args.filtering_experiment_number is not None:
         filtering_experiments = pd.read_csv(FILTERING_EXPERIMENT_INFO_PATH, index_col='index')
-        target_filtering_experiment = filtering_experiments.iloc[args.filtering_experiment_number]
+        target_filtering_experiment = filtering_experiments.loc[args.filtering_experiment_number]
         experiment_number = target_filtering_experiment['basic_experiment_index']
         filtering_policy = target_filtering_experiment['data_filtering_policy']
         retrieval_policy = target_filtering_experiment['data_retrieval_policy']
         based_on = target_filtering_experiment['based_on']
         experiment_dir = osp.join(FILTERING_EXPERIMENT_BASE_DIR, str(experiment_number), based_on, filtering_policy, retrieval_policy) 
         experiments = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
-        target_experiment = experiments.iloc[experiment_number]
+        target_experiment = experiments.loc[experiment_number]
     else:
         experiment_number = args.experiment_number
         experiments = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
-        target_experiment = experiments.iloc[experiment_number]
+        target_experiment = experiments.loc[experiment_number]
         experiment_dir = osp.join(EXPERIMENT_BASE_DIR, *[str(target_experiment[col]) for col in EXPERIMENT_COLS])    
 
     folds = target_experiment['folds']

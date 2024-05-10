@@ -108,7 +108,7 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
             experiments_dataset_columns=EXPERIMENT_COLS)
 
     experiments       = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
-    target_experiment = experiments.iloc[experiment_number]
+    target_experiment = experiments.loc[experiment_number]
     num_folds         = target_experiment['folds']
     num_epochs        = target_experiment['epochs']
     model_name        = target_experiment['model']
