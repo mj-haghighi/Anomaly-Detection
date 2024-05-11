@@ -14,7 +14,7 @@ def generate_colors(num_colors):
     colors = [cmap(value) for value in values]
     return colors
 
-def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green', 'yellow', 'oranges', 'pink']):
+def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green', 'yellow', 'oranges', 'pink'], title="Best AUC result component contribution"):
     columns = dataframe.columns
     colors = generate_colors(len(columns) * 10)
     r = list(range(len(columns)))
@@ -58,6 +58,6 @@ def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green',
     # Custom x axis
     plt.xticks(r, columns)
     plt.xlabel("group")
-    plt.title("Best AUC result component contribution")
+    plt.title(title)
     # Show graphic
     plt.show()
