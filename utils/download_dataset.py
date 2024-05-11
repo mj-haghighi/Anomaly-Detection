@@ -19,7 +19,7 @@ def download_dataset(dataset_name: str, outdir=None):
         return
 
     if not osp.isdir(outdir):
-        os.makedirs(outdir)
+        os.makedirs(outdir, exist_ok=True)
 
     outpath = osp.join(outdir, dataset_name+"."+config.filetype)
     wget.download(url=config.download_link, out=outpath)

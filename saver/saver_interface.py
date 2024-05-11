@@ -24,7 +24,7 @@ class IModelSaver:
             path = osp.join(path, f'{fold}')
 
         if not osp.exists(path):
-            os.makedirs(path)
+            os.makedirs(path, exist_ok=True)
         path = osp.join(path, f'ep{epoch}-best_model.pt')
         print('best model saved!, according to following metric = {:.4}'.format(self.best_value))
         

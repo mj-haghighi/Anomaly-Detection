@@ -17,7 +17,7 @@ class LastEpochModelSaver:
             path = osp.join(path, f'{fold}')
 
         if not osp.exists(path):
-            os.makedirs(path)
+            os.makedirs(path, exist_ok=True)
         path = osp.join(path, f'ep{epoch}-last_model.pt')
         
         torch.save(model.state_dict(), path)

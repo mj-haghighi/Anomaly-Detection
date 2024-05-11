@@ -21,7 +21,7 @@ class DataframeLogger(ILogger):
             self.column_names.extend(metric_columns)
 
         if not osp.isdir(logdir):
-            os.makedirs(logdir)
+            os.makedirs(logdir, exist_ok=True)
 
     def log(self, fold: int, epoch: int, iteration: int, samples: List[str], phase: str, labels: List[str], metrics: List[IMetric]):
         self.dataframe: pd.DataFrame = pd.DataFrame(columns=self.column_names)
@@ -33,7 +33,7 @@ class DataframeLogger(ILogger):
             )
         directory = osp.join(self.logdir, f"{fold}", phase, f"{epoch :03d}")
         if not osp.exists(directory):
-            os.makedirs(directory)
+            os.makedirs(directory, exist_ok=True)
         self.dataframe.to_pickle(osp.join(directory, f"{iteration :04d}-{self.base_name}"))
 
     def __log_sample(self, sample: str, label: str, metrics: Dict[str, float]):
