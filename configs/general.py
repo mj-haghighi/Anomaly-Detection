@@ -19,6 +19,7 @@ DEVICE                          = 'cuda:0'
 
 BASE_DIR = "/home/vision/Repo/cleanset/logs"
 EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "basic_experiments")
+METRICS_BASE_DIR = osp.join(BASE_DIR, "metrics")
 FILTERING_EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "filtering_experiments")
 EXPERIMENT_COLS = ["dataset", "model", "dropout", "optim", "lr", "lr_scheduler", "init", "transform", "np", "ns"]
 FILTERING_EXPERIMENT_COLS = ['basic_experiment_index', 'based_on', 'data_filtering_policy', 'data_retrieval_policy']
