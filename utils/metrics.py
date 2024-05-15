@@ -18,3 +18,6 @@ def diff_two_max(prob_array):
 
 def find_max_proba(prob_array):
     return np.max(prob_array)
+
+def argmax_list(lst):
+    return max(range(len(lst)), key=lst.__getitem__)    
