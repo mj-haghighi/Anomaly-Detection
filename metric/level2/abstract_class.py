@@ -3,8 +3,28 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import MinMaxScaler
 from utils.metrics import std_agg
+from enums import METRIC_TYPE
 
-class AbstractMeanStdMetricClass(ABC):
+class AbstractMetricClass(ABC):
+    @abstractmethod
+    def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path="") -> None:
+        pass
+
+    @abstractmethod
+    def calculate_auc_per_phase(self, metric, metric_name = None):
+        pass
+
+    @abstractmethod
+    def calculate_metric_per_phase(self, scale=False):
+        pass
+
+    @property
+    @abstractmethod
+    def metric_type(self) -> str:
+        pass
+
+
+class AbstractMeanStdMetricClass(AbstractMetricClass):
     def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path=""):
         self.experiment_dir = experiment_dir
         self.phases         = phases
@@ -20,7 +40,11 @@ class AbstractMeanStdMetricClass(ABC):
     def metric_name(self):
         pass
 
-    def calculate_auc_per_phase(self, metric, metric_name = None):
+    @property
+    def metric_type(self):
+        return METRIC_TYPE.MeanStd
+
+    def calculate_auc_per_phase(self, metric, metric_name = None) -> pd.DataFrame:
         result = {}
         for phase in self.phases:
             phase_metrics = metric[metric['phase'] == phase]
@@ -34,7 +58,7 @@ class AbstractMeanStdMetricClass(ABC):
         return result
 
 
-    def calculate_metric_per_phase(self, scale=False):
+    def calculate_metric_per_phase(self, scale=False) -> pd.DataFrame:
         metric = pd.DataFrame()
         for phase in self.phases:
             res = self.calculate_metric_on_folds(phase)
@@ -71,7 +95,7 @@ class AbstractMeanStdMetricClass(ABC):
         pass
 
 
-class AbstractCumulativeMetricClass(ABC):
+class AbstractCumulativeMetricClass(AbstractMetricClass):
 
     def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path=""):
         self.experiment_dir = experiment_dir
@@ -83,7 +107,7 @@ class AbstractCumulativeMetricClass(ABC):
         self.scaler         = MinMaxScaler()
 
 
-    def calculate_auc_per_phase(self, metric, metric_name=None):
+    def calculate_auc_per_phase(self, metric, metric_name=None) -> pd.DataFrame:
         result = {}
         for phase in self.phases:
             phase_correctness = metric[metric['phase'] == phase]
@@ -97,7 +121,7 @@ class AbstractCumulativeMetricClass(ABC):
         return result
 
 
-    def calculate_metric_per_phase(self, scale=False):
+    def calculate_metric_per_phase(self, scale=False) -> pd.DataFrame:
         metric = pd.DataFrame()
         for phase in self.phases:
             res = self.calculate_metric_on_folds(phase)
@@ -117,11 +141,14 @@ class AbstractCumulativeMetricClass(ABC):
         metric = metric.groupby(['sample', 'label'])[self.metric_name].sum().reset_index()
         return metric
 
+    @property
+    def metric_type(self):
+        return METRIC_TYPE.Cumulative
 
     @property
     @abstractmethod
     def metric_name(self):
-        return "id2m"
+        pass
 
 
     @abstractmethod
