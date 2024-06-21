@@ -53,3 +53,7 @@ class PHASE:
     TRAIN       = "train"
     VALIDATION  = "validation"
     TEST        = "test"
+
+class METRIC_TYPE:
+    MeanStd = "MeanStd"
+    Cumulative = "Cumulative"
