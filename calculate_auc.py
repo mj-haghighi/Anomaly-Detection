@@ -9,6 +9,7 @@ from enums import METRIC_TYPE
 from metric.level2.loss import Loss
 from metric.level2.entropy import Entropy
 from metric.level2.top_proba import TopProba
+from metric.level2.aum import AreaUnderMargin
 from metric.level2.id2m import IntegralDiff2Max
 from metric.level2.correctness import Correctness
 from metric.level2.abstract_class import AbstractMetricClass
@@ -22,6 +23,7 @@ AVAILABLE_METRICS : Dict[str, Any] = {
     "id2m": IntegralDiff2Max,
     "loss": Loss,
     "top_proba": TopProba,
+    "aum": AreaUnderMargin
 }
 
 if __name__ == "__main__":
@@ -56,6 +58,8 @@ def calculate_auc_for_metric(metric_name):
     #         experiments[f"{metric_name}-{phase}-auc"] = 0.0
 
     MetricClass: AbstractMetricClass = AVAILABLE_METRICS[metric_name]
+    done_auc_calculations = 0
+    total_auc_calculations = len(experiments)
     for index, row in experiments.iterrows():
         metric = MetricClass(
             experiment_dir=osp.join(EXPERIMENT_BASE_DIR, *[str(row[col]) for col in EXPERIMENT_COLS]),
@@ -79,7 +83,9 @@ def calculate_auc_for_metric(metric_name):
         else:
             raise Exception(f"Bug raise: Unknown metric type in metric {metric_name}")
 
+        done_auc_calculations += 1
         experiments.at[index, f"has_auc"] = True
+        print(f"{metric_name}: ({done_auc_calculations}/{total_auc_calculations}) AUC calculation '{index}' done!")
 
 
     experiments = experiments[(experiments["has_auc"] == True)]

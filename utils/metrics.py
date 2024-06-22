@@ -17,6 +17,10 @@ def diff_two_max(prob_array):
     sorted_probs = sorted(prob_array, reverse=True)
     return sorted_probs[0] - sorted_probs[1] if len(sorted_probs) >= 2 else np.nan
 
+def aum(prob_array, assigned_label_index):
+    sorted_probs = sorted(prob_array, reverse=True)
+    return sorted_probs[0] - prob_array[assigned_label_index]
+
 def find_max_proba(prob_array):
     return np.max(prob_array)
 
