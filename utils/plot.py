@@ -14,7 +14,9 @@ def generate_colors(num_colors):
     colors = [cmap(value) for value in values]
     return colors
 
-def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green', 'yellow', 'oranges', 'pink'], title="Best AUC result component contribution"):
+def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green', 'yellow', 'oranges', 'pink'], title="Best AUC result component contribution", figsize=(15,15)):
+    plt.figure(figsize=figsize)
+
     columns = dataframe.columns
     colors = generate_colors(len(columns) * 10)
     r = list(range(len(columns)))
@@ -56,8 +58,17 @@ def draw_stacked_bars(dataframe: pd.DataFrame, colors = ['red', 'blue', 'green',
         last_bar_items += bar_items
 
     # Custom x axis
+    plt.title(title)
     plt.xticks(r, columns)
     plt.xlabel("group")
-    plt.title(title)
     # Show graphic
     plt.show()
+    # plt.close()
+
+    # plt.figure()  # Create a new figure
+    # plt.plot(sorted_df['insex'], sorted_df[col], marker='o')
+    # plt.title(f'Plot of {col} vs insex')
+    # plt.xlabel('insex')
+    # plt.ylabel(col)
+    # plt.grid(True)
+    # plt.show()
