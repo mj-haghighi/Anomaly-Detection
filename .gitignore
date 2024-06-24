@@ -6,3 +6,4 @@ dataset/*
 logs/*
 archived\ logs/*
 !logs/experiments.csv
+!logs/metrics
