@@ -19,7 +19,7 @@ from configs import configs
 NOISE_PERSENTAGE_OPTIONS = [0.0, 0.03, 0.07, 0.13]
 NOISE_SPARSITY_OPTIONS = [0.0, 0.2, 0.4, 0.6] 
 
-def inject_noise_to_dataset(percentage, sparsity, dataset_name: str, outdir=None):
+def inject_symetric_noise_to_dataset(percentage, sparsity, dataset_name: str, outdir=None):
     if dataset_name not in configs.keys():
         raise Exception("Unknown dataset '{}'".format(dataset_name))
     config = configs[dataset_name]
@@ -53,30 +53,33 @@ def inject_noise_to_dataset(percentage, sparsity, dataset_name: str, outdir=None
 ##: To use directly
 def parse_args():
     parser = argparse.ArgumentParser(description='download dataset')
-    parser.add_argument('--dataset', type=str, choices=['mnist', 'cifar10', 'cifar100'], help='choose dataset')
-    parser.add_argument('--percentage', type=float, choices=NOISE_PERSENTAGE_OPTIONS, help='injected noise precentage of dataset')
-    parser.add_argument('--sparsity', type=float, default=0, choices=NOISE_SPARSITY_OPTIONS, help='sparsity of injected noise to the dataset (fraction of off-diagonal zeros in noise matrix)')
-    parser.add_argument('--all-noise-options', type=bool, default=False, help='Inject noise with all noise options')
-
+    parser.add_argument('--dataset', type=str, choices=['mnist', 'cifar10', 'cifar100'], help='Choose dataset')
+    parser.add_argument('--percentage', type=float, choices=NOISE_PERSENTAGE_OPTIONS, help='Injected noise (symetric) precentage of dataset')
+    parser.add_argument('--sparsity', type=float, default=0, choices=NOISE_SPARSITY_OPTIONS, help='Sparsity of injected noise (symetric) to the dataset (fraction of off-diagonal zeros in noise matrix)')
+    parser.add_argument('--all-symetric-noise-options', type=bool, default=False, help='Inject noise with all symetric noise options')
+    parser.add_argument('--noise-type', default="idn", type=str, choices=['mnist', 'cifar10', 'cifar100'], help='noise type, available options: symetric, idn')
     args = parser.parse_args()
     return args
 
 
 def main(argv=None):
     args = parse_args()
-    if args.all_noise_options:
-        noise_persentage_options = NOISE_PERSENTAGE_OPTIONS[1:]
-        noise_sparsity_options = NOISE_SPARSITY_OPTIONS
-    else:
-        noise_persentage_options = [args.noise_percentage]
-        noise_sparsity_options = [args.noise_sparsity]
+    if args.noise_type == 'idn':
+        pass
+    else:     
+        if args.all_symetric_noise_options:
+            noise_persentage_options = NOISE_PERSENTAGE_OPTIONS[1:]
+            noise_sparsity_options = NOISE_SPARSITY_OPTIONS
+        else:
+            noise_persentage_options = [args.noise_percentage]
+            noise_sparsity_options = [args.noise_sparsity]
 
-    for noise_percentage in noise_persentage_options:
-        for noise_sparsity in noise_sparsity_options:
-            inject_noise_to_dataset(
-                dataset_name=args.dataset,
-                percentage=noise_percentage,
-                sparsity=noise_sparsity)
+        for noise_percentage in noise_persentage_options:
+            for noise_sparsity in noise_sparsity_options:
+                inject_symetric_noise_to_dataset(
+                    dataset_name=args.dataset,
+                    percentage=noise_percentage,
+                    sparsity=noise_sparsity)
 
 if __name__ == "__main__":    
     main()
