@@ -12,7 +12,7 @@ PHASES                          = ['train', 'validation']
 DATA_FILTERING_POLICIES         = ['equal_to_np']
 DATA_RETRIEVAL_POLICIES         = ['remove', 'retrieve_noisy_labels', 'retrieve_all']
 TRANSFORM_LEVELS                = ['default', 'intermediate']
-EPOCHS                          = 15
+EPOCHS                          = [15, 100]
 FOLDS                           = 3
 DEVICE                          = 'cuda:0'
 
@@ -21,7 +21,7 @@ BASE_DIR = "/home/vision/Repo/cleanset/logs"
 EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "basic_experiments")
 METRICS_BASE_DIR = osp.join(BASE_DIR, "metrics")
 FILTERING_EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "filtering_experiments")
-EXPERIMENT_COLS = ["dataset", "model", "dropout", "optim", "lr", "lr_scheduler", "init", "transform", "np", "ns"]
+EXPERIMENT_COLS = ["dataset", "model", "dropout", "optim", "lr", "lr_scheduler", "init", "transform", "np", "ns", "epochs"]
 FILTERING_EXPERIMENT_COLS = ['basic_experiment_index', 'based_on', 'data_filtering_policy', 'data_retrieval_policy']
 
 EXPERIMENT_INFO_PATH = osp.join(BASE_DIR, "experiments.csv")
