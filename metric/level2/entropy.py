@@ -19,8 +19,15 @@ class Entropy(AbstractMeanStdMetricClass):
             glob_regex = osp.join(self.experiment_dir, str(fold), str(phase), str(epoch), '*.pd')
             iterations_log = sorted(glob.glob(glob_regex))
             if len(iterations_log) == 0:
+                print("No itteration logs found in fold {fold} / phase {phase}/ epoch {epoch}")
                 continue
-            iterations_log = [pd.read_pickle(file_path) for file_path in iterations_log]
+            try:
+                iterations_log = [pd.read_pickle(file_path, compression="xz") for file_path in iterations_log]
+            except Exception as e:
+                print(e)
+                iterations_log = [pd.read_pickle(file_path) for file_path in iterations_log]
+                print("Found file without compression!")
+
             iterations_log = pd.concat(iterations_log, axis=0, ignore_index=True)
             iterations_log[self.metric_name] = iterations_log['proba'].apply(lambda x: calc_entropy(x))
             iterations_log = iterations_log.drop(columns=['proba', 'loss'])
