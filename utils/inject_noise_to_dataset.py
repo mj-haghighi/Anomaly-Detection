@@ -19,7 +19,7 @@ from configs import configs
 
 
 NOISE_PERSENTAGE_OPTIONS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-NOISE_SPARSITY_OPTIONS = [0.0, 0.2, 0.4, 0.6] 
+NOISE_SPARSITY_OPTIONS = [0.2, 0.6]
 
 
 def save_noise(noisy_labels, dataset_info_path, noisy_label_col_name):
@@ -62,7 +62,7 @@ def main(argv=None):
     shutil.copy(path, path+".swp")
     if args.noise_type == 'idn':
         noisy_labels, noise_cm = generate_idn_noise(args.percentage, dataset_name=args.dataset, feature_size=feature_size[args.dataset],norm_std=0.1, seed=47)
-        col_name=f"idn[np={args.percentage}]"
+        col_name=f"idn[np={args.percentage}&ns=undefined]"
         save_noise(noisy_labels, dataset_info_path=osp.join('dataset', args.dataset, 'info.csv'), noisy_label_col_name=col_name)
         save_cm(noise_matrix=noise_cm, path=osp.join('dataset', args.dataset,f'{col_name}.png'))
     elif args.noise_type == 'sym':
@@ -79,7 +79,7 @@ def main(argv=None):
                     dataset_name=args.dataset,
                     percentage=noise_percentage,
                     sparsity=noise_sparsity)
-                col_name=f"sym[np={args.percentage}, ns={args.percentage}]"
+                col_name=f"sym[np={args.percentage}&ns={args.percentage}]"
                 save_noise(noisy_labels, dataset_info_path=osp.join('dataset', args.dataset, 'info.csv'), noisy_label_col_name=col_name)
                 save_cm(noise_matrix=noise_cm, path=osp.join('dataset', args.dataset,f'{col_name}.png'))
 
