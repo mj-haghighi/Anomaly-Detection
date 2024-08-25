@@ -115,11 +115,12 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     transform_level   = target_experiment['transform']
     dropout           = float(target_experiment['dropout'][4:])
     dataset_name      = target_experiment['dataset']
+    noise_type         = target_experiment['noise_type']
     optimizer_name    = target_experiment['optim']
     learning_rate     = float(target_experiment['lr'][3:])
     pretrain          = target_experiment['init'] == 'pretrain'
     num_classes       = len(configs[dataset_name].classes)
-    label_column      = f"noisy_label[{target_experiment['np']},{target_experiment['ns']}]" if float(target_experiment['np'][3:]) > 0.001 else 'true_label'
+    label_column      = f"{noise_type}[{target_experiment['np']}&{target_experiment['ns']}]" if float(target_experiment['np'][3:]) > 0.001 else 'true_label'
     lr_scheduler_name = target_experiment['lr_scheduler']
 
     fold_start_time = time.time()
