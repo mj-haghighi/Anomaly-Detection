@@ -109,7 +109,7 @@ def main():
 
     metrics: List = [] 
     if args.metrics == "all":
-        metrics = AVAILABLE_METRICS.keys()
+        metrics = list(AVAILABLE_METRICS.keys())
     else:
         metrics = args.metrics.split(",")
         valid_metrics = [m for m in metrics if m in AVAILABLE_METRICS.keys()]
@@ -123,10 +123,10 @@ def main():
 
         processes = []
         for metric in to_calculate_metrics:
-            args = {
+            _args = {
                 "metric_name": metric,
             }
-            p = multiprocessing.Process(target=calculate_auc_for_metric, kwargs=args)
+            p = multiprocessing.Process(target=calculate_auc_for_metric, kwargs=_args)
             processes.append(p)
             p.start()
 
