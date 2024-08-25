@@ -26,4 +26,5 @@ EXPERIMENT_COLS = ["dataset", "model", "dropout", "optim", "lr", "lr_scheduler",
 FILTERING_EXPERIMENT_COLS = ['basic_experiment_index', 'based_on', 'data_filtering_policy', 'data_retrieval_policy']
 
 EXPERIMENT_INFO_PATH = osp.join(BASE_DIR, "experiments.csv")
+CLASSIFIER_INFO_PATH = osp.join(BASE_DIR, "classifier_result.csv")
 FILTERING_EXPERIMENT_INFO_PATH = osp.join(BASE_DIR, "filtering_experiments.csv")
