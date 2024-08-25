@@ -2,7 +2,6 @@ import torch
 import pandas as pd
 import os.path as osp
 from PIL import Image
-from enums import PHASE
 from utils import to_categorical
 from configs import configs
 from torch.utils.data import Dataset as TorchDataset
@@ -47,5 +46,4 @@ class GeneralDataset(TorchDataset):
             self.dataset_length = len(df)
             return list(zip(indices, paths, labels))
         else:
-
             raise Exception(f"label_column: {self.label_column} is not valid")
