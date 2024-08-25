@@ -18,12 +18,12 @@ from configs.general import EXPERIMENT_INFO_PATH, METRICS_BASE_DIR, EXPERIMENT_C
 
 
 AVAILABLE_METRICS : Dict[str, Any] = {
-    "correctness": Correctness,
+    # "correctness": Correctness,
     "entropy": Entropy,
     "id2m": IntegralDiff2Max,
     "loss": Loss,
-    "top_proba": TopProba,
-    "aum": AreaUnderMargin
+    # "top_proba": TopProba,
+    # "aum": AreaUnderMargin
 }
 
 if __name__ == "__main__":
@@ -38,12 +38,15 @@ def parse_args():
     return args
 
 
-def calculate_auc_for_metric(metric_name):
+def calculate_auc_for_metric(metric_name, metrics_base_dir=None):
     assert metric_name in AVAILABLE_METRICS.keys(), f"invalid metric name {metric_name}"
+    if metrics_base_dir is None:
+        metrics_base_dir = METRICS_BASE_DIR
     
     experiments = load_experiments(EXPERIMENT_INFO_PATH, index_col='index')
     experiments = experiments[(experiments['done'] == True) & (experiments['np'] != "np=0.0")]
-    experiments_with_auc = load_examins_auc(osp.join(METRICS_BASE_DIR, f"{metric_name}_auc.csv"), index_col='index')
+
+    experiments_with_auc = load_examins_auc(osp.join(metrics_base_dir, f"{metric_name}_auc.csv"), index_col='index')
 
     if experiments_with_auc is not None and not experiments_with_auc.empty:
         experiments = filter_out_auc_calculated_experiments(experiments, experiments_with_auc)
@@ -89,11 +92,11 @@ def calculate_auc_for_metric(metric_name):
 
 
     experiments = experiments[(experiments["has_auc"] == True)]
-    path = osp.join(METRICS_BASE_DIR, f"{metric_name}_auc.csv")
+    path = osp.join(metrics_base_dir, f"{metric_name}_auc.csv")
     if osp.exists(path):
         shutil.copy(path, path+".swp")
     else:
-        os.makedirs(METRICS_BASE_DIR, exist_ok=True)
+        os.makedirs(metrics_base_dir, exist_ok=True)
     if experiments_with_auc is not None and not experiments_with_auc.empty:
         experiments_with_auc = experiments_with_auc._append(experiments.drop(columns=['has_auc']))
         experiments_with_auc.sort_index(inplace=True)
