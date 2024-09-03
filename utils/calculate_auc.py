@@ -18,12 +18,12 @@ from configs.general import EXPERIMENT_INFO_PATH, METRICS_BASE_DIR, EXPERIMENT_C
 
 
 AVAILABLE_METRICS : Dict[str, Any] = {
-    # "correctness": Correctness,
+    "correctness": Correctness,
     "entropy": Entropy,
     "id2m": IntegralDiff2Max,
     "loss": Loss,
-    # "top_proba": TopProba,
-    # "aum": AreaUnderMargin
+    "top_proba": TopProba,
+    "aum": AreaUnderMargin
 }
 
 if __name__ == "__main__":
@@ -44,7 +44,7 @@ def calculate_auc_for_metric(metric_name, metrics_base_dir=None):
         metrics_base_dir = METRICS_BASE_DIR
     
     experiments = load_experiments(EXPERIMENT_INFO_PATH, index_col='index')
-    experiments = experiments[(experiments['done'] == True) & (experiments['np'] != "np=0.0")]
+    experiments = experiments[(experiments['done'] == True) & ((experiments['np'] == "np=0.5"))]
 
     experiments_with_auc = load_examins_auc(osp.join(metrics_base_dir, f"{metric_name}_auc.csv"), index_col='index')
 
@@ -128,6 +128,7 @@ def main():
         for metric in to_calculate_metrics:
             _args = {
                 "metric_name": metric,
+                "metrics_base_dir":"/home/vision/Repo/cleanset/logs/metrics"
             }
             p = multiprocessing.Process(target=calculate_auc_for_metric, kwargs=_args)
             processes.append(p)
