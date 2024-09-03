@@ -1,7 +1,7 @@
 import os.path as osp
 
 MODELS                          = ["resnet18", "resnet34", "xception"]
-DATASETS                        = ["cifar10", "cifar100", "mnist"]
+DATASETS                        = ["cifar10", "cifar100", "mnist", "animal10n", "cifar10nag", "cifar10nws"]
 OPTIMS                          = [('adam', ["0.001", "0.0001"]), ('sgd', ["0.1", "0.01"])]
 INITIALIZATIONS                 = ['pretrain', 'kaiming_normal']
 LR_SCHEDULERS                   = ['none', 'reduceLR']
@@ -17,8 +17,8 @@ EPOCHS                          = 100
 FOLDS                           = 3
 DEVICE                          = 'cuda:0'
 
-
 BASE_DIR = "/home/vision/Repo/cleanset/logs"
+
 EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "basic_experiments")
 METRICS_BASE_DIR = osp.join(BASE_DIR, "metrics")
 FILTERING_EXPERIMENT_BASE_DIR = osp.join(BASE_DIR, "filtering_experiments")
@@ -27,4 +27,5 @@ FILTERING_EXPERIMENT_COLS = ['basic_experiment_index', 'based_on', 'data_filteri
 
 EXPERIMENT_INFO_PATH = osp.join(BASE_DIR, "experiments.csv")
 CLASSIFIER_INFO_PATH = osp.join(BASE_DIR, "classifier_result.csv")
+CLASSIFIER_INFERENCE_DIR = osp.join(BASE_DIR, "classifier_inference_result")
 FILTERING_EXPERIMENT_INFO_PATH = osp.join(BASE_DIR, "filtering_experiments.csv")
