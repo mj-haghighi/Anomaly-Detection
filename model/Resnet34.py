@@ -28,6 +28,8 @@ class Resnet34(nn.Module):
 
     def load_state_dict(self, state_dict):
         state_dict = remove_prefix_from_state_dict(state_dict, prefix_to_remove='resnet34.')
+        state_dict['fc.weight'] = state_dict.pop('fc.1.weight')
+        state_dict['fc.bias'] = state_dict.pop('fc.1.bias')
         self.resnet34.load_state_dict(state_dict)
 
     def forward(self, x):
