@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import os.path as osp
+from configs.general import EXPERIMENT_COLS, CLASSIFIER_INFERENCE_DIR
 
 from .abstract_class import FilteringPolicy
 
