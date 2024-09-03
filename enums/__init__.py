@@ -2,6 +2,9 @@ class DATASETS:
     MNIST       = "mnist"
     CIFAR10     = "cifar10"
     CIFAR100    = "cifar100"
+    ANIMAL10N   = "animal10n"
+    CIFAR10NAG  = "cifar10nag"
+    CIFAR10NWS  = "cifar10nws"
 
 class TRANSFORM_LEVEL:
     DEFAULT         = "default"
