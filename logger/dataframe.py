@@ -35,8 +35,8 @@ class DataframeLogger(ILogger):
         directory = osp.join(self.logdir, f"{fold}", phase, f"{epoch :03d}")
         if not osp.exists(directory):
             os.makedirs(directory, exist_ok=True)
-
-        self.dataframe['sample'] = self.dataframe['sample'].astype('int32')
+        if self.dataframe['sample'].dtype != object:
+            self.dataframe['sample'] = self.dataframe['sample'].astype('int32')
         self.dataframe['label'] = self.dataframe['label'].astype('int8')
         self.dataframe['loss'] = self.dataframe['loss'].astype('float16')
         self.dataframe['proba'] = self.dataframe['proba'].apply(lambda x: x.astype(np.float16))
