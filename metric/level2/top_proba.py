@@ -5,8 +5,8 @@ from metric.level2.abstract_class import AbstractMeanStdMetricClass
 from utils.metrics import find_max_proba
 
 class TopProba(AbstractMeanStdMetricClass):
-    def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path=""):
-        super().__init__(experiment_dir, phases, folds, epochs, epoch_skip, raw_dataset_path)
+    def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0,raw_dataset_path="", scaler=None):
+        super().__init__(experiment_dir, phases, folds, epochs, scaler, epoch_skip,raw_dataset_path)
 
     @property
     def metric_name(self):
@@ -19,7 +19,7 @@ class TopProba(AbstractMeanStdMetricClass):
             glob_regex = osp.join(self.experiment_dir, str(fold), str(phase), str(epoch), '*.pd')
             iterations_log = sorted(glob.glob(glob_regex))
             if len(iterations_log) == 0:
-                print("No itteration logs found in fold {fold} / phase {phase}/ epoch {epoch}")
+                print(f"No itteration logs found in fold {fold} / phase {phase}/ epoch {epoch}")
                 continue
             try:
                 iterations_log = [pd.read_pickle(file_path, compression="xz") for file_path in iterations_log]

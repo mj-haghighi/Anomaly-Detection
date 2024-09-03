@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
 import pandas as pd
+from abc import ABC, abstractmethod
 from sklearn.metrics import roc_auc_score
-from sklearn.preprocessing import MinMaxScaler
 from utils.metrics import std_agg
 from enums import METRIC_TYPE
+from utils.verbose import verbose, VERBOSE
 
 class AbstractMetricClass(ABC):
     @abstractmethod
@@ -25,15 +25,15 @@ class AbstractMetricClass(ABC):
 
 
 class AbstractMeanStdMetricClass(AbstractMetricClass):
-    def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path=""):
+    def __init__(self, experiment_dir, phases, folds, epochs, scaler, epoch_skip=0, raw_dataset_path=""):
         self.experiment_dir = experiment_dir
         self.phases         = phases
         self.folds          = folds
         self.epochs         = epochs
         self.epoch_skip     = epoch_skip
         self.dataset_info   = pd.read_csv(raw_dataset_path, index_col='index')
-        self.scaler         = MinMaxScaler()
-
+        self.scaler         = scaler
+        verbose(f'scaler: {self.scaler}', VERBOSE.LEVEL_2)
 
     @property
     @abstractmethod
@@ -97,14 +97,15 @@ class AbstractMeanStdMetricClass(AbstractMetricClass):
 
 class AbstractCumulativeMetricClass(AbstractMetricClass):
 
-    def __init__(self, experiment_dir, phases, folds, epochs, epoch_skip=0, raw_dataset_path=""):
+    def __init__(self, experiment_dir, phases, folds, epochs, scaler, epoch_skip=0, raw_dataset_path=""):
         self.experiment_dir = experiment_dir
         self.phases         = phases
         self.folds          = folds
         self.epochs         = epochs
         self.epoch_skip     = epoch_skip
         self.dataset_info   = pd.read_csv(raw_dataset_path, index_col='index')
-        self.scaler         = MinMaxScaler()
+        self.scaler         = scaler
+        verbose(f'scaler: {self.scaler}', VERBOSE.LEVEL_2)
 
 
     def calculate_auc_per_phase(self, metric, metric_name=None) -> pd.DataFrame:
