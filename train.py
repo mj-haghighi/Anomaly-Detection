@@ -34,14 +34,14 @@ if __name__ == '__main__':
         filtering_policy = target_filtering_experiment['data_filtering_policy']
         retrieval_policy = target_filtering_experiment['data_retrieval_policy']
         based_on = target_filtering_experiment['based_on']
-        experiment_dir = osp.join(FILTERING_EXPERIMENT_BASE_DIR, str(experiment_number), based_on, filtering_policy, retrieval_policy) 
+        experiment_dir = osp.join(FILTERING_EXPERIMENT_BASE_DIR, str(experiment_number), str(based_on), filtering_policy, retrieval_policy)
         experiments = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
         target_experiment = experiments.loc[experiment_number]
     else:
         experiment_number = args.experiment_number
         experiments = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
         target_experiment = experiments.loc[experiment_number]
-        experiment_dir = osp.join(EXPERIMENT_BASE_DIR, *[str(target_experiment[col]) for col in EXPERIMENT_COLS])    
+        experiment_dir = osp.join(EXPERIMENT_BASE_DIR, *[str(target_experiment[col]) for col in EXPERIMENT_COLS])
 
     folds = target_experiment['folds']
     processes = []
