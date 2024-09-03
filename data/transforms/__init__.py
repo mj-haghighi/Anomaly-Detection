@@ -2,14 +2,23 @@ from enums import DATASETS
 from enums import TRANSFORM_LEVEL
 from . import mnist
 from . import cifar10
+from . import animal10n
+from . import cifar10nag
+from . import cifar10nws
 
 default_transforms={
     DATASETS.MNIST: (mnist.default_train_transform, mnist.default_validation_transform),
-    DATASETS.CIFAR10: (cifar10.default_train_transform, cifar10.default_validation_transform)
+    DATASETS.CIFAR10: (cifar10.default_train_transform, cifar10.default_validation_transform),
+    DATASETS.ANIMAL10N: (animal10n.default_train_transform, animal10n.default_validation_transform),
+    DATASETS.CIFAR10NAG: (cifar10nag.default_train_transform, cifar10nag.default_validation_transform),
+    DATASETS.CIFAR10NWS: (cifar10nws.default_train_transform, cifar10nws.default_validation_transform)
 }
 
 intermediate_transforms={
-    DATASETS.CIFAR10: (cifar10.intermediate_train_transform, cifar10.default_validation_transform)
+    DATASETS.CIFAR10: (cifar10.intermediate_train_transform, cifar10.default_validation_transform),
+    DATASETS.ANIMAL10N: (animal10n.intermediate_train_transform, animal10n.default_validation_transform),
+    DATASETS.CIFAR10NAG: (cifar10nag.intermediate_train_transform, cifar10nag.default_validation_transform),
+    DATASETS.CIFAR10NWS: (cifar10nws.intermediate_train_transform, cifar10nws.default_validation_transform)
 }
 
 
