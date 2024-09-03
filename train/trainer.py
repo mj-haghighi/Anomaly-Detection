@@ -11,7 +11,7 @@ from saver import best_model
 from enums import PHASE, VERBOSE 
 from enums import TRANSFORM_LEVEL
 from configs import configs
-from data.set import Subset
+from data.set import Subset, CombinedTrainSubset
 from data.set import GeneralDataset
 from lrscheduler import get_lrscheduler
 from utils.verbose import verbose
@@ -57,7 +57,7 @@ def train_one_epoch(fold, epoch, model, dataloader, optimizer, queue):
         metrics_result = calculate_metrics(prediction_probs, labels, loss_each)
         queue.put({
                 "fold": fold, "epoch": epoch, "iteration": iteration,
-                "samples": copy.deepcopy(idx.detach().cpu().numpy()), "phase": PHASE.TRAIN,
+                "samples": copy.deepcopy(idx if type(idx) == tuple else idx.detach().cpu().numpy()), "phase": PHASE.TRAIN,
                 "labels": np.argmax(labels.cpu().detach().numpy(), axis=1),
                 "metrics": metrics_result
                 })
@@ -100,28 +100,30 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     data_filtering_policy = None
     if filtering_policy is not None:
         data_filtering_policy = get_data_filtering_policy(
-            policy_name=filtering_policy,
-            metric_name=based_on,
-            experiment_base_dir=EXPERIMENT_BASE_DIR,
-            experiment_number=experiment_number, 
-            experiments_info_path=EXPERIMENT_INFO_PATH,
-            experiments_dataset_columns=EXPERIMENT_COLS)
+            policy_name= filtering_policy,
+            metric_name= based_on,
+            experiment_base_dir= EXPERIMENT_BASE_DIR,
+            experiment_number= experiment_number, 
+            experiments_info_path= EXPERIMENT_INFO_PATH,
+            experiments_dataset_columns= EXPERIMENT_COLS
+        )
 
-    experiments       = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
-    target_experiment = experiments.loc[experiment_number]
-    num_folds         = target_experiment['folds']
-    num_epochs        = target_experiment['epochs']
-    model_name        = target_experiment['model']
-    transform_level   = target_experiment['transform']
-    dropout           = float(target_experiment['dropout'][4:])
-    dataset_name      = target_experiment['dataset']
-    noise_type         = target_experiment['noise_type']
-    optimizer_name    = target_experiment['optim']
-    learning_rate     = float(target_experiment['lr'][3:])
-    pretrain          = target_experiment['init'] == 'pretrain'
-    num_classes       = len(configs[dataset_name].classes)
-    label_column      = f"{noise_type}[{target_experiment['np']}&{target_experiment['ns']}]" if float(target_experiment['np'][3:]) > 0.001 else 'true_label'
-    lr_scheduler_name = target_experiment['lr_scheduler']
+    experiments         = pd.read_csv(EXPERIMENT_INFO_PATH, index_col='index')
+    target_experiment   = experiments.loc[experiment_number]
+    num_folds           = target_experiment['folds']
+    num_epochs          = target_experiment['epochs']
+    model_name          = target_experiment['model']
+    transform_level     = target_experiment['transform']
+    dropout             = float(target_experiment['dropout'][4:])
+    dataset_name        = target_experiment['dataset']
+    valid_dataset_name  = dataset_name if len(dataset_name.split('_')) <= 1 else dataset_name.split('_')[0]
+    noise_type          = target_experiment['noise_type']
+    optimizer_name      = target_experiment['optim']
+    learning_rate       = float(target_experiment['lr'][3:])
+    pretrain            = target_experiment['init'] == 'pretrain'
+    num_classes         = len(configs[valid_dataset_name].classes)
+    label_column        = f"{noise_type}[{target_experiment['np']}&{target_experiment['ns']}]" if float(target_experiment['np'][3:]) > 0.001 else 'true_label'
+    lr_scheduler_name   = target_experiment['lr_scheduler']
 
     fold_start_time = time.time()
     model = predefined_models.get(name=model_name, num_classes=num_classes, pretrain=pretrain, dropout=dropout)
@@ -130,15 +132,20 @@ def train_fold(fold, queue, experiment_number, filtering_policy=None, based_on=N
     lr_scheduler = get_lrscheduler(optimizer, lr_scheduler_name)
 
     dataset = GeneralDataset(
-        dataset_name=dataset_name, label_column=label_column, transform=None,
+        dataset_name=valid_dataset_name, label_column=label_column, transform=None,
         phase=PHASE.TRAIN, data_filtering_policy=data_filtering_policy)
 
     kf = KFold(n_splits=num_folds, shuffle=True, random_state=43)
     folding = list(kf.split(dataset))
     train_subset_indices, validation_subset_indices = folding[fold]
 
-    train_transform, validation_transform = get_transforms(dataset_name=dataset_name, transform_level=transform_level)
-    train_subset = Subset(dataset, train_subset_indices, transform=train_transform)
+    train_transform, validation_transform = get_transforms(dataset_name=valid_dataset_name, transform_level=transform_level)
+
+    if len(dataset_name.split('_')) > 1 and dataset_name.split('_')[1] == 'combined':
+        train_subset = CombinedTrainSubset(dataset, train_subset_indices, transform=train_transform, basic_transform=validation_transform)
+    else:
+        train_subset = Subset(dataset, train_subset_indices, transform=train_transform)
+
     validation_subset = Subset(dataset, validation_subset_indices, transform=validation_transform)
 
     trainloader = torch.utils.data.DataLoader(train_subset, batch_size=64, shuffle=True)
